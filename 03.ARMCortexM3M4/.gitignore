@@ -1,0 +1,13 @@
+*/.metadata/*.*
+*/*.cfg
+*/RemoteSystemsTempFiles/*
+*/.settings/*
+*/*.launch
+*/Debug/*
+*/Startup/*
+*/.cproject
+*/.project
+*/*.ld
+*.o
+*.elf
+*.log

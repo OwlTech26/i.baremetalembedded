@@ -1,0 +1,56 @@
+ARM GCC Toolchain: https://developer.arm.com/downloads/-/gnu-rm
+  - Compiler, linker, assembler: arm-none-eabi-gcc
+  - Assembler: arm-none-eabi-as
+  - Linker: arm-none-eabi-ld
+  - Elf file analyzer: arm-none-eabi-objdump, arm-none-eabi-readelf, arm-none-eabi-nm
+  - Format converter: arm-none-eabi-objcopy
+  - Debugger: arm-none-eabi-gdb
+  
+Compalition:
+https://gcc.gnu.org/onlinedocs/gcc-9.3.0/gcc/ARM-Options.html
+arm-none-eabi-gcc main.c -o main.o  							% Compile, assemble, link
+arm-none-eabi-gcc -c main.c -o main.o  							% Compile, assemble, skip link
+arm-none-eabi-gcc -c -mcpu=cortex-m4 -mthumb main.c -o main.o 	% Also works with '-march=armv7ve' instead of '-mcpu=cortex-m4'
+arm-none-eabi-gcc -S -mcpu=cortex-m4 -mthumb main.c -o main.s	% Assembly mnemonics generation											
+
+Makefile: https://gnuwin32.sourceforge.net/packages/make.htm
+
+Analyzing relocatable obj files:
+arm-none-eabi-objdump -h main.o
+arm-none-eabi-objdump -d main.o
+arm-none-eabi-objdump -s main.o
+
+Linking
+arm-none-eabi-gcc -nostdlib -T stm32_ls.ld *.o -o final.elf -Wl,-Map=final.map
+arm-none-eabi-objdump -h final.elf
+arm-none-eabi-nm final.elf
+
+OpenOCD DEBUG
+  1. OpenOCD 
+  2. Telnet Client (PuTTY on Windows)
+  3. Run OpenOCD with the board config file (openocd -f board/st_nucleo_f4.cfg)
+  4. Connect to the OpenOCD via Telnet Client or GDB Client
+  5. Issue commands over Telnet or GDB Client to OpenOCD to download and debug the code (https://openocd.org/doc/html/General-Commands.html)
+    --- GDB 3333 ---
+    - arm-none-eabi-gdb
+	- target remote localhost:3333
+	- target extended-remote localhost:3333
+    - monitor reset init
+	- monitor flash write_image erase final.elf
+	- monitor reset halt
+	- monitor resume
+	- monitor mdw 0x20000000 4 % Word read by count
+	- monitor bp 0x08000542 2 hw % Add breakpoint to task1_handler
+	- monitor bp
+	- monitor rbp 0x08000542 % Remove breakpoint
+	- monitor bp 0x08000560 2 hw % task2_handler
+	- quit
+	--- Telnet: PUTTY 4444 ---
+	- arm semihosting enable
+	- shutdown
+	
+C standard libraries
+  - C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\arm-none-eabi\lib\
+  - Newlib: libc.a and libc_nano.a
+  - Semihosting: librdimon.a and librdimon_nano.a
+  - Specs files for linking: *.specs -> nano.specs, rdimon.specs

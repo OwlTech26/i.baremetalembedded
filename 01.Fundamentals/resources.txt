@@ -1,0 +1,3 @@
+- Udemy: Fundamental Data Structures & Algorithms using C language. https://www.udemy.com/course/data-structures-stack-queue-linkedlist/learn/lecture/13610766?start=0#overview
+- Udemy: Data Structures and Algorithms In C. https://www.udemy.com/course/data-structures-and-algorithms-in-c/learn/lecture/7937012?start=0#overview
+

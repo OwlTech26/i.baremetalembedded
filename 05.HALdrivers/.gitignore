@@ -1,0 +1,10 @@
+.metadata/*.*
+*.cfg
+RemoteSystemsTempFiles/*
+01_seif_system/.settings/*
+01_seif_system/*.launch
+01_seif_system/Debug/*
+01_seif_system/Startup/*
+01_seif_system/.cproject
+01_seif_system/.project
+01_seif_system/*.ld

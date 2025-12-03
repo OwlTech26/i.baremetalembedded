@@ -1,0 +1,2 @@
+char* const *(*next)();
+char *(*c[10])(int **p);
