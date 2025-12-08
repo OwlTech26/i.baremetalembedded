@@ -243,4 +243,45 @@ void CLOCK_RESET_reset_peri(const t_clock_peri clock_sel, const uint8_t peri_bf_
 	}
 }
 
+void CLOCK_RESET_lsion_enable(const t_bool lsion_en)
+{
+	uint32_t rcc_csr_reg = RCC_CSR_GET();
+	if (lsion_en != FALSE) {
+		rcc_csr_reg |= RCC_CSR_LSION_MASK;
+	} else {
+		rcc_csr_reg &= RCC_CSR_LSION_NMASK;
+	}
+	RCC_CSR_SET(rcc_csr_reg);
+
+	while ((RCC_CSR_GET() & RCC_CSR_LSIRDY_MASK) == 0u);
+}
+
+void CLOCK_RESET_backup_domain_reset(void)
+{
+	uint32_t rcc_bdcr_reg = RCC_BDCR_GET();
+	rcc_bdcr_reg |= RCC_BDCR_BDRST_MASK; // Force reset
+	RCC_BDCR_SET(rcc_bdcr_reg);
+	rcc_bdcr_reg &= RCC_BDCR_BDRST_NMASK; // Release reset
+	RCC_BDCR_SET(rcc_bdcr_reg);
+}
+
+void CLOCK_RESET_rtc_clock_sel(t_clock_rtc_src rtc_clk_sel)
+{
+	uint32_t rcc_bdcr_reg = RCC_BDCR_GET();
+	rcc_bdcr_reg &= RCC_BDCR_RTCSEL_NMASK;
+	rcc_bdcr_reg |= ((uint32_t)rtc_clk_sel << RCC_BDCR_RTCSEL_POS);
+	RCC_BDCR_SET(rcc_bdcr_reg);
+}
+
+void CLOCK_RESET_rtc_enable(const t_bool rtc_en)
+{
+	uint32_t rcc_bdcr_reg = RCC_BDCR_GET();
+	if (rtc_en != FALSE) {
+		rcc_bdcr_reg |= RCC_BDCR_RTCEN_MASK;
+	} else {
+		rcc_bdcr_reg &= RCC_BDCR_RTCEN_NMASK;
+	}
+	RCC_BDCR_SET(rcc_bdcr_reg);
+}
+
 /*** EOF ***/

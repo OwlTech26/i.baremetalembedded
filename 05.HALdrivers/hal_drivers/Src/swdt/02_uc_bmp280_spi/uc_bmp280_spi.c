@@ -12,12 +12,12 @@
 /******************************************************************************/
 #include "uc_bmp280_spi.h"
 
-
 #include <stdlib.h>
 #include "common_def.h"
 #include "system.h"
 #include "mport.h"
 #include "seif_bmp280.h"
+#include "rtc.h"
 #include "cortex_m4.h"
 #include "clock_reset.h"
 #include "fw_debug.h"
@@ -27,6 +27,20 @@
 /*--------------------------Defines-------------------------------------------*/
 /******************************************************************************/
 #define HSE_CLOCK_RESET_TIMEOUT	100u
+
+/** \name Timestamp settings. */
+/**@{*/
+//!< 12.05.2025 Friday
+#define TSTP_YEAR_BCD		(((uint8_t)2u << RTC_BCD_BIT_NUM) | (uint8_t)5u)
+#define TSTP_MONTH_BCD		(((uint8_t)1u << RTC_BCD_BIT_NUM) | (uint8_t)2u)
+#define TSTP_DAY_BCD		(((uint8_t)0u << RTC_BCD_BIT_NUM) | (uint8_t)5u)
+#define TSTP_WEEK_DAY		(e_rtc_wd_friday)
+//!< 16:11:45
+#define TSTP_HOUR_BCD		(((uint8_t)1u << RTC_BCD_BIT_NUM) | (uint8_t)6u)
+#define TSTP_MIN_BCD		(((uint8_t)1u << RTC_BCD_BIT_NUM) | (uint8_t)1u)
+#define TSTP_SEC_BCD		(((uint8_t)4u << RTC_BCD_BIT_NUM) | (uint8_t)5u)
+#define TSTP_24HRS_FORMAT	(TRUE)
+/**@}*/
 
 /** \name SysTick timer settings. */
 /**@{*/
@@ -61,6 +75,8 @@ static uint32_t SENS_SYS_TICK;
  *  	\retval 
  */
 static void uc_bmp280_init(void);
+
+static void uc_bmp280_real_time_clock_init(void);
 
 static void uc_bmp280_systick_init(void);
 
@@ -114,6 +130,29 @@ static void uc_bmp280_init(void)
 	// 5. Initialize Sensor Interfcae
 	const t_error_code mport_stat = MPORT_spi_init();
 	DEBUG_PRINT((mport_stat == e_ec_no_error) ? "  - MPORT init SUCCESS\n" : "  - MPORT init FAIL\n");
+
+	// 6. Initialize real-time clock unit
+	uc_bmp280_real_time_clock_init();
+}
+
+static void uc_bmp280_real_time_clock_init(void)
+{
+	RTC_enable(TRUE, FALSE);
+
+	const t_rtc_date date_init = {
+		.year = TSTP_YEAR_BCD,
+		.month = TSTP_MONTH_BCD,
+		.day = TSTP_DAY_BCD,
+		.week_day = TSTP_WEEK_DAY
+	};
+	const t_rtc_time time_init = {
+		.hours = TSTP_HOUR_BCD,
+		.mins = TSTP_MIN_BCD,
+		.secs = TSTP_SEC_BCD,
+		.time_f_12h = TSTP_24HRS_FORMAT
+	};
+	const t_error_code rtc_init_stat = RTC_init(&date_init, &time_init);
+	DEBUG_PRINT((rtc_init_stat == e_ec_no_error) ? "  - RTC init SUCCESS\n" : "  - RTC init FAIL\n");
 }
 
 static void uc_bmp280_systick_init(void)
@@ -127,10 +166,19 @@ static void uc_bmp280_systick_init(void)
 
 static void uc_bmp280_provide_data(const t_bmp280_comp_params * const p_comp_params)
 {
+	// Get timestamp
+	t_rtc_time tstp_data = {0};
+	RTC_get_time(&tstp_data);
+
 	uint32_t temp_raw = 0u;
 	const int32_t temp_degc = SEIF_BMP280_get_temp_degc(p_comp_params, &temp_raw);
 	const uint32_t press_pa_q23_8 = SEIF_BMP280_get_press_pa(p_comp_params, temp_raw);
-	DEBUG_PRINT("  %2ld.%2ld    | %4.3f\n", temp_degc / 100, abs((int)temp_degc) % 100, (float)press_pa_q23_8 / 25600.0);
+
+	// Display timestamp and sensor data
+	DEBUG_PRINT("  %u%u:%u%u.%u%u ", tstp_data.hours >> RTC_BCD_BIT_NUM, tstp_data.hours & RTC_BCD_UNITS_MASK,
+					tstp_data.mins >> RTC_BCD_BIT_NUM, tstp_data.mins & RTC_BCD_UNITS_MASK,
+					tstp_data.secs >> RTC_BCD_BIT_NUM, tstp_data.secs & RTC_BCD_UNITS_MASK);
+	DEBUG_PRINT("   %2ld.%2ld °C | %4.3f hPa\n", temp_degc / 100, abs((int)temp_degc) % 100, (float)press_pa_q23_8 / 25600.0);
 }
 
 /******************************************************************************/
@@ -159,12 +207,21 @@ void UC_BMP280_SPI_run(void)
 	t_bmp280_comp_params comp_params = {0};
 	SEIF_BMP280_get_comp_params(&comp_params);
 
+	t_rtc_date datum = {0};
+	RTC_get_date(&datum);
+
+	const char * const p_weekdays[e_rtc_wd_max] = {"N/A", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
 	// Initialize system tick for data sampling
 	uc_bmp280_systick_init();
 
-	DEBUG_PRINT("\n-------------------------\n");
-	DEBUG_PRINT("| Temp[°C] | Press[hPA] |\n");
-	DEBUG_PRINT("-------------------------\n");
+	DEBUG_PRINT("\n>> Log started at: %u%u.%u%u 20%u%u, %s\n", datum.month >> RTC_BCD_BIT_NUM, datum.month & RTC_BCD_UNITS_MASK,
+			datum.day >> RTC_BCD_BIT_NUM, datum.day & RTC_BCD_UNITS_MASK,
+			datum.year >> RTC_BCD_BIT_NUM, datum.year & RTC_BCD_UNITS_MASK,
+			p_weekdays[datum.week_day]);
+	DEBUG_PRINT("-------------------------------------\n");
+	DEBUG_PRINT("| Timestamp | Temp[°C] | Press[hPa] |\n");
+	DEBUG_PRINT("-------------------------------------\n");
 
 	uc_bmp280_provide_data(&comp_params);
 

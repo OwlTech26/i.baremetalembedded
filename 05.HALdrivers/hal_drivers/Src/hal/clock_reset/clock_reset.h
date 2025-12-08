@@ -124,25 +124,6 @@ typedef enum {
 } t_ahb1_peri_sel;
 
 typedef enum {
-	e_peri_tim1			= 0u,
-	e_peri_tim8			= 1u,
-	e_peri_usart1		= 4u,
-	e_peri_usart6		= 5u,
-	e_peri_adc1			= 8u,
-	e_peri_adc2			= 9u,
-	e_peri_adc3			= 10u,
-	e_peri_sdio			= 11u,
-	e_peri_spi1			= 12u,
-	e_peri_spi4			= 13u,
-	e_peri_syscfg		= 14u,
-	e_peri_tim9			= 16u,
-	e_peri_tim10		= 17u,
-	e_peri_tim11		= 18u,
-	e_peri_sai1			= 22u,
-	e_peri_sai2			= 23u
-} t_apb2_peri_sel;
-
-typedef enum {
 	e_peri_tim2			= 0u,
 	e_peri_tim3			= 1u,
 	e_peri_tim4			= 2u,
@@ -170,6 +151,33 @@ typedef enum {
 	e_peri_pwr			= 28u,
 	e_peri_dac			= 29u
 } t_apb1_peri_sel;
+
+typedef enum {
+	e_peri_tim1			= 0u,
+	e_peri_tim8			= 1u,
+	e_peri_usart1		= 4u,
+	e_peri_usart6		= 5u,
+	e_peri_adc1			= 8u,
+	e_peri_adc2			= 9u,
+	e_peri_adc3			= 10u,
+	e_peri_sdio			= 11u,
+	e_peri_spi1			= 12u,
+	e_peri_spi4			= 13u,
+	e_peri_syscfg		= 14u,
+	e_peri_tim9			= 16u,
+	e_peri_tim10		= 17u,
+	e_peri_tim11		= 18u,
+	e_peri_sai1			= 22u,
+	e_peri_sai2			= 23u
+} t_apb2_peri_sel;
+
+typedef enum {
+	e_clk_rtc_none = 0u,
+	e_clk_rtc_lse  = 1u,
+	e_clk_rtc_lsi  = 2u,
+	e_clk_rtc_hse  = 3u,
+	e_clk_rtc_max  = 4u
+} t_clock_rtc_src;
 
 
 /******************************************************************************/
@@ -213,7 +221,7 @@ void CLOCK_RESET_get_config(t_clock_cfgr * const p_clk_cfg);
 /** \brief Enables the periphery clock(s) for the selected bridge.
  *  \param[in] clock_sel Selected bridge clock.
  *  \param[in] peri_bf_pos Periphery bitfield position.
- *  \param[in] clock_en Low Power Mode enable.
+ *  \param[in] clock_en Clock Enable/Disable..
  *  \param[in] lpwrm_en Low Power Mode enable.
  */
 void CLOCK_RESET_enable_peri(const t_clock_peri clock_sel, const uint8_t peri_bf_pos, const uint8_t clock_en, const uint8_t lpwrm_en);
@@ -223,6 +231,17 @@ void CLOCK_RESET_enable_peri(const t_clock_peri clock_sel, const uint8_t peri_bf
  *  \param[in] peri_bf_pos Periphery bitfield position.
  */
 void CLOCK_RESET_reset_peri(const t_clock_peri clock_sel, const uint8_t peri_bf_pos);
+
+/** \brief Enables the internal low-speed oscillator.
+ *  \param[in] lsion_en LSION Enable/Disable.
+ */
+void CLOCK_RESET_lsion_enable(const t_bool lsion_en);
+
+void CLOCK_RESET_backup_domain_reset(void);
+
+void CLOCK_RESET_rtc_clock_sel(t_clock_rtc_src rtc_clk_sel);
+
+void CLOCK_RESET_rtc_enable(const t_bool rtc_en);
 
 #endif /* CLOCK_RESET_H_ */
 /*** EOF ***/

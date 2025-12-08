@@ -33,7 +33,7 @@
 
 /** \name System timer */
 #define SYST_CSR_OFS							(0x00u) //!< SysTick Control and Status Register
-	#define SYST_CSR_GET()						(HAL_REG_READ((SYST_BASE + SYST_CSR_OFS)))
+	#define SYST_CSR_GET()						(HAL_REG_READ(SYST_BASE + SYST_CSR_OFS))
 	#define SYST_CSR_SET(data)					(HAL_REG_WRITE((SYST_BASE + SYST_CSR_OFS), (uint32_t)data))
 		#define SYST_CSR_ENABLE_WIDTH			(1u)
 		#define SYST_CSR_ENABLE_POS				(0u)
@@ -52,21 +52,21 @@
 		#define SYST_CSR_COUNTFLAG_MASK			(HAL_BIT_CREATE_MASK(SYST_CSR_COUNTFLAG_POS, SYST_CSR_COUNTFLAG_WIDTH))
 		#define SYST_CSR_COUNTFLAG_NMASK 		(~(SYST_CSR_COUNTFLAG_MASK))
 #define SYST_RVR_OFS							(0x04u) //!< SysTick Reload Value Register
-	#define SYST_RVR_GET()						(HAL_REG_READ((SYST_BASE + SYST_RVR_OFS)))
+	#define SYST_RVR_GET()						(HAL_REG_READ(SYST_BASE + SYST_RVR_OFS))
 	#define SYST_RVR_SET(data)					(HAL_REG_WRITE((SYST_BASE + SYST_RVR_OFS), (uint32_t)data))
 		#define SYST_RVR_WIDTH					(24u)
 		#define SYST_RVR_POS					(0u)
 		#define SYST_RVR_MASK					(HAL_BIT_CREATE_MASK(SYST_RVR_POS, SYST_RVR_WIDTH))
 		#define SYST_RVR_NMASK 					(~(SYST_RVR_MASK))
 #define SYST_CVR_OFS							(0x08u) //!< SysTick Current Value Register
-	#define SYST_CVR_GET()						(HAL_REG_READ((SYST_BASE + SYST_CVR_OFS)))
+	#define SYST_CVR_GET()						(HAL_REG_READ(SYST_BASE + SYST_CVR_OFS))
 	#define SYST_CVR_SET(data)					(HAL_REG_WRITE((SYST_BASE + SYST_CVR_OFS), (uint32_t)data))
 		#define SYST_CVR_WIDTH					(24u)
 		#define SYST_CVR_POS					(0u)
 		#define SYST_CVR_MASK					(HAL_BIT_CREATE_MASK(SYST_CVR_POS, SYST_CVR_WIDTH))
 		#define SYST_CVR_NMASK 					(~(SYST_CVR_MASK))
 #define SYST_CALIB_OFS							(0x1Cu) //!< SysTick Calibration Value Register
-	#define SYST_CALIB_GET()					(HAL_REG_READ((SYST_BASE + SYST_CALIB_OFS)))
+	#define SYST_CALIB_GET()					(HAL_REG_READ(SYST_BASE + SYST_CALIB_OFS))
 	#define SYST_CALIB_SET(data)				(HAL_REG_WRITE((SYST_BASE + SYST_CALIB_OFS), (uint32_t)data))
 		#define SYST_CALIB_TENMS_WIDTH			(24u)
 		#define SYST_CALIB_TENMS_POS			(0u)
@@ -95,16 +95,16 @@
 #define NVIC_ISER_IRQ_MASK(bf)			(HAL_BIT_CREATE_MASK(NVIC_ISER_IRQ_POS(bf), NVIC_ISER_IRQ_WIDTH))
 #define NVIC_ISER_IRQ_NMASK(bf)			(~(NVIC_ISER_IRQ_MASK))
 #define NVIC_ISER0_OFS					(0x00u) //!< Interrupt Set-enable Register 0.
-	#define NVIC_ISER0_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ISER0_OFS)))
+	#define NVIC_ISER0_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ISER0_OFS))
 	#define NVIC_ISER0_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ISER0_OFS), (uint32_t)data))
 #define NVIC_ISER1_OFS					(0x04u) //!< Interrupt Set-enable Register 1.
-	#define NVIC_ISER1_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ISER1_OFS)))
+	#define NVIC_ISER1_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ISER1_OFS))
 	#define NVIC_ISER1_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ISER1_OFS), (uint32_t)data))
 #define NVIC_ISER2_OFS					(0x08u) //!< Interrupt Set-enable Register 2.
-	#define NVIC_ISER2_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ISER2_OFS)))
+	#define NVIC_ISER2_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ISER2_OFS))
 	#define NVIC_ISER2_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ISER2_OFS), (uint32_t)data))
 #define NVIC_ISER3_OFS					(0x0Cu) //!< Interrupt Set-enable Register 3.
-	#define NVIC_ISER3_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ISER3_OFS)))
+	#define NVIC_ISER3_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ISER3_OFS))
 	#define NVIC_ISER3_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ISER3_OFS), (uint32_t)data))
 
 #define NVIC_ICER_IRQ_WIDTH				(1u)
@@ -112,20 +112,20 @@
 #define NVIC_ICER_IRQ_MASK(bf)			(HAL_BIT_CREATE_MASK(NVIC_ICER_IRQ_POS(bf), NVIC_ICER_IRQ_WIDTH))
 #define NVIC_ICER_IRQ_NMASK(bf)			(~(NVIC_ICER_IRQ_MASK))
 #define NVIC_ICER0_OFS					(0x80u) //!< Interrupt Set-enable Register 0.
-	#define NVIC_ICER0_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ICER0_OFS)))
+	#define NVIC_ICER0_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ICER0_OFS))
 	#define NVIC_ICER0_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ICER0_OFS), (uint32_t)data))
 #define NVIC_ICER1_OFS					(0x84u) //!< Interrupt Set-enable Register 1.
-	#define NVIC_ICER1_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ICER1_OFS)))
+	#define NVIC_ICER1_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ICER1_OFS))
 	#define NVIC_ICER1_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ICER1_OFS), (uint32_t)data))
 #define NVIC_ICER2_OFS					(0x88u) //!< Interrupt Set-enable Register 2.
-	#define NVIC_ICER2_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ICER2_OFS)))
+	#define NVIC_ICER2_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ICER2_OFS))
 	#define NVIC_ICER2_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ICER2_OFS), (uint32_t)data))
 #define NVIC_ICER3_OFS					(0x8Cu) //!< Interrupt Set-enable Register 3.
-	#define NVIC_ICER3_GET()			(HAL_REG_READ((NVIC_BASE1 + NVIC_ICER3_OFS)))
-	#define NVIC_ICER3_SET(data)		(HAL_REG_WRITE((NVIC_BASE1 + NVIC_ICER3_OFS), (uint32_t)data))
+	#define NVIC_ICER3_GET()			(HAL_REG_READ(NVIC_BASE1 + NVIC_ICER3_OFS))
+	#define NVIC_ICER3_SET(data)		(HAL_REG_WRITE(NVIC_BASE1 + NVIC_ICER3_OFS), (uint32_t)data)
 
 #define NVIC_IPR0_OFS					(0x300u)
-#define NVIC_IPRx_GET(idx)				(HAL_REG_READ(((idx * WORDS) + NVIC_IPR0_OFS + NVIC_BASE1)))
+#define NVIC_IPRx_GET(idx)				(HAL_REG_READ((idx * WORDS) + NVIC_IPR0_OFS + NVIC_BASE1))
 #define NVIC_IPRx_SET(idx, data)		(HAL_REG_WRITE(((idx * WORDS) + NVIC_IPR0_OFS + NVIC_BASE1), (uint32_t)data))
 	#define NVIC_IPRx_WIDTH				(8u)
 	#define NVIC_IPRx_IMPLEMENTED_BF	(4u)

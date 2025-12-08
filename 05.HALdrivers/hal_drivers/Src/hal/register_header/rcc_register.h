@@ -23,7 +23,7 @@
 /** \name Reset / Clock Control Registers. */
 /**@{*/
 #define RCC_CR_OFS							(0x00u) //!< Clock control register offset.
-	#define RCC_CR_GET()					(HAL_REG_READ((RCC_BASE + RCC_CR_OFS)))
+	#define RCC_CR_GET()					(HAL_REG_READ(RCC_BASE + RCC_CR_OFS))
 	#define RCC_CR_SET(data)				(HAL_REG_WRITE((RCC_BASE + RCC_CR_OFS), (uint32_t)data))
 		#define RCC_CR_HSI_ON_POS			(0u)
 		#define RCC_CR_HSI_ON_WIDTH			(1u)
@@ -83,7 +83,7 @@
 		#define RCC_CR_PLLSAI_RDY_NMASK		(~RCC_CR_PLLSAI_RDY_MASK)
 #define RCC_PLLCFGR_OFS						(0x04u) //!< PLL Configuration register offset.
 #define RCC_CFGR_OFS						(0x08u) //!< Clock Configuration register offset.
-	#define RCC_CFGR_GET()					(HAL_REG_READ((RCC_BASE + RCC_CFGR_OFS)))
+	#define RCC_CFGR_GET()					(HAL_REG_READ(RCC_BASE + RCC_CFGR_OFS))
 	#define RCC_CFGR_SET(data)				(HAL_REG_WRITE((RCC_BASE + RCC_CFGR_OFS), (uint32_t)data))
 		#define  RCC_CFGR_SW_POS			(0u)
 		#define  RCC_CFGR_SW_WIDTH			(2u)
@@ -135,7 +135,7 @@
 /** 0x28 Reserved. */
 /** 0x2C Reserved. */
 #define RCC_AHB1ENR_OFS						(0x30u) //!< AHB1 peripheral enable register offset.
-	#define  RCC_AHB1ENR_GET()				(HAL_REG_READ((RCC_BASE + RCC_AHB1ENR_OFS)))
+	#define  RCC_AHB1ENR_GET()				(HAL_REG_READ(RCC_BASE + RCC_AHB1ENR_OFS))
 	#define  RCC_AHB1ENR_SET(data)			(HAL_REG_WRITE((RCC_BASE + RCC_AHB1ENR_OFS), (uint32_t)data))
 		#define RCC_AHB1ENR_WIDTH			(1u)
 		#define RCC_AHB1ENR_POS(bf)			(bf * RCC_AHB1ENR_WIDTH)
@@ -157,7 +157,47 @@
 /** 0x68 Reserved. */
 /** 0x6c Reserved. */
 #define RCC_BDCR_OFS						(0x70u) //!< Backup Domain control register offset.
+	#define RCC_BDCR_GET()					(HAL_REG_READ(RCC_BASE + RCC_BDCR_OFS))
+	#define RCC_BDCR_SET(data)				(HAL_REG_WRITE((RCC_BASE + RCC_BDCR_OFS), (uint32_t)data))
+		#define RCC_BDCR_LSEON_WIDTH		(1u)
+		#define RCC_BDCR_LSEON_POS			(0u)
+		#define RCC_BDCR_LSEON_MASK			(HAL_BIT_CREATE_MASK(RCC_BDCR_LSEON_POS, RCC_BDCR_LSEON_WIDTH))
+		#define RCC_BDCR_LSEON_NMASK 		(~(RCC_BDCR_LSEON_MASK))
+		#define RCC_BDCR_LSERDY_WIDTH		(1u)
+		#define RCC_BDCR_LSERDY_POS			(1u)
+		#define RCC_BDCR_LSERDY_MASK		(HAL_BIT_CREATE_MASK(RCC_BDCR_LSERDY_POS, RCC_BDCR_LSERDY_WIDTH))
+		#define RCC_BDCR_LSERDY_NMASK 		(~(RCC_BDCR_LSERDY_MASK))
+		#define RCC_BDCR_LSEBYP_WIDTH		(1u)
+		#define RCC_BDCR_LSEBYP_POS			(2u)
+		#define RCC_BDCR_LSEBYP_MASK		(HAL_BIT_CREATE_MASK(RCC_BDCR_LSEBYP_POS, RCC_BDCR_LSEBYP_WIDTH))
+		#define RCC_BDCR_LSEBYP_NMASK 		(~(RCC_BDCR_LSEBYP_MASK))
+		#define RCC_BDCR_LSEMOD_WIDTH		(1u)
+		#define RCC_BDCR_LSEMOD_POS			(3u)
+		#define RCC_BDCR_LSEMOD_MASK		(HAL_BIT_CREATE_MASK(RCC_BDCR_LSEMOD_POS, RCC_BDCR_LSEMOD_WIDTH))
+		#define RCC_BDCR_LSEMOD_NMASK 		(~(RCC_BDCR_LSEMOD_MASK))
+		#define RCC_BDCR_RTCSEL_WIDTH		(2u)
+		#define RCC_BDCR_RTCSEL_POS			(8u)
+		#define RCC_BDCR_RTCSEL_MASK		(HAL_BIT_CREATE_MASK(RCC_BDCR_RTCSEL_POS, RCC_BDCR_RTCSEL_WIDTH))
+		#define RCC_BDCR_RTCSEL_NMASK 		(~(RCC_BDCR_RTCSEL_MASK))
+		#define RCC_BDCR_RTCEN_WIDTH		(1u)
+		#define RCC_BDCR_RTCEN_POS			(15u)
+		#define RCC_BDCR_RTCEN_MASK			(HAL_BIT_CREATE_MASK(RCC_BDCR_RTCEN_POS, RCC_BDCR_RTCEN_WIDTH))
+		#define RCC_BDCR_RTCEN_NMASK 		(~(RCC_BDCR_RTCEN_MASK))
+		#define RCC_BDCR_BDRST_WIDTH		(1u)
+		#define RCC_BDCR_BDRST_POS			(16u)
+		#define RCC_BDCR_BDRST_MASK			(HAL_BIT_CREATE_MASK(RCC_BDCR_BDRST_POS, RCC_BDCR_BDRST_WIDTH))
+		#define RCC_BDCR_BDRST_NMASK 		(~(RCC_BDCR_BDRST_MASK))
 #define RCC_CSR_OFS							(0x74u) //!< Clock control and status register offset.
+	#define RCC_CSR_GET()					(HAL_REG_READ(RCC_BASE + RCC_CSR_OFS))
+	#define RCC_CSR_SET(data)				(HAL_REG_WRITE((RCC_BASE + RCC_CSR_OFS), (uint32_t)data))
+		#define RCC_CSR_LSION_WIDTH			(1u)
+		#define RCC_CSR_LSION_POS			(0u)
+		#define RCC_CSR_LSION_MASK			(HAL_BIT_CREATE_MASK(RCC_CSR_LSION_POS, RCC_CSR_LSION_WIDTH))
+		#define RCC_CSR_LSION_NMASK 		(~(RCC_CSR_LSION_MASK))
+		#define RCC_CSR_LSIRDY_WIDTH		(1u)
+		#define RCC_CSR_LSIRDY_POS			(1u)
+		#define RCC_CSR_LSIRDY_MASK			(HAL_BIT_CREATE_MASK(RCC_CSR_LSIRDY_POS, RCC_CSR_LSIRDY_WIDTH))
+		#define RCC_CSR_LSIRDY_NMASK 		(~(RCC_CSR_LSIRDY_MASK))
 /** 0x78 Reserved. */
 /** 0x7c Reserved. */
 #define RCC_SSCGR_OFS						(0x80u) //!< Spread spectrum clock generation register offset.

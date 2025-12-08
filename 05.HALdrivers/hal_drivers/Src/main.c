@@ -19,3 +19,4 @@ int main(void)
 	UC_BMP280_SPI_run();
 #endif /* USE_CASE_RUN_IDX */
 }
+
