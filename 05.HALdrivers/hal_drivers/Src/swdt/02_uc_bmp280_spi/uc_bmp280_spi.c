@@ -15,18 +15,18 @@
 #include <stdlib.h>
 #include "common_def.h"
 #include "system.h"
+#include "rcc.h"
 #include "mport.h"
 #include "seif_bmp280.h"
 #include "rtc.h"
 #include "cortex_m4.h"
-#include "clock_reset.h"
 #include "fw_debug.h"
 #include "cast.h"
 
 /******************************************************************************/
 /*--------------------------Defines-------------------------------------------*/
 /******************************************************************************/
-#define HSE_CLOCK_RESET_TIMEOUT	100u
+#define HSE_RCC_TIMEOUT			100u
 
 /** \name Timestamp settings. */
 /**@{*/
@@ -44,8 +44,8 @@
 
 /** \name SysTick timer settings. */
 /**@{*/
-#define SENS_SYSTICK_10MS_RELOAD_VAL	(160000u-1) //!< Calculated based on 16 MHz clock
-#define SENS_SYS_TICK_WAIT	(200u)
+#define SENS_SYSTICK_10MS_RELOAD_VAL	(40000u-1) //!< Calculated based on 4 MHz clock
+#define SENS_SYS_TICK_WAIT				(500u) 	   //!< Sensor data refresh rate: 5 sec
 /**@}*/
 
 
@@ -104,11 +104,11 @@ static void uc_bmp280_init(void)
 	// 1. Enable the HSE clock using HSEON bit (RCC_CR)
 	// 2. Enable the HSE bypass bit (bypass the oscillator with an ext clock)
 	const t_clock_source clk_src = e_clk_hse;
-	CLOCK_RESET_enable_source(clk_src, TRUE);
+	RCC_enable_source(clk_src, TRUE);
 
 	// 3. Wait until HSE clock enabled
-	uint32_t timeout = HSE_CLOCK_RESET_TIMEOUT;
-	while ((CLOCK_RESET_get_source_stat(clk_src) == FALSE) && (timeout > 0u)) {
+	uint32_t timeout = HSE_RCC_TIMEOUT;
+	while ((RCC_get_source_stat(clk_src) == FALSE) && (timeout > 0u)) {
 		timeout--;
 	}
 
@@ -118,16 +118,17 @@ static void uc_bmp280_init(void)
 
 		const t_clock_cfgr clk_cfg = {
 			.clk_sw = e_clk_sys_hse,
-			.clk_mco1 = e_clk_mco_hse,
-			.clk_mco1_pre = e_clk_mco_pre_4
+			.clk_hpre = e_clk_hpre_2,
+			.clk_ppre2 = e_clk_ppre_2
 		};
-		init_stat = CLOCK_RESET_set_config(&clk_cfg);
+		init_stat = RCC_set_config(&clk_cfg);
 		DEBUG_PRINT((init_stat == e_ec_no_error) ? "  - HSE Clock switch SUCCESS\n" : "  - HSE Clock switch FAIL\n");
+		DEBUG_PRINT("  - APB2 peripheral clock frequency: %lu MHz\n", RCC_get_peri_clock_freq(e_peri_apb2) / RCC_CLOCK_FREQ_TO_MHZ);
 	} else {
 		DEBUG_PRINT("  - HSE clock enable FAIL.\n");
 	}
 
-	// 5. Initialize Sensor Interfcae
+	// 5. Initialize Sensor Interface
 	const t_error_code mport_stat = MPORT_spi_init();
 	DEBUG_PRINT((mport_stat == e_ec_no_error) ? "  - MPORT init SUCCESS\n" : "  - MPORT init FAIL\n");
 
@@ -178,7 +179,7 @@ static void uc_bmp280_provide_data(const t_bmp280_comp_params * const p_comp_par
 	DEBUG_PRINT("  %u%u:%u%u.%u%u ", tstp_data.hours >> RTC_BCD_BIT_NUM, tstp_data.hours & RTC_BCD_UNITS_MASK,
 					tstp_data.mins >> RTC_BCD_BIT_NUM, tstp_data.mins & RTC_BCD_UNITS_MASK,
 					tstp_data.secs >> RTC_BCD_BIT_NUM, tstp_data.secs & RTC_BCD_UNITS_MASK);
-	DEBUG_PRINT("   %2ld.%2ld °C | %4.3f hPa\n", temp_degc / 100, abs((int)temp_degc) % 100, (float)press_pa_q23_8 / 25600.0);
+	DEBUG_PRINT("   %2ld.%2d °C | %4.3f hPa\n", temp_degc / 100, abs((int)temp_degc) % 100, (float)press_pa_q23_8 / 25600.0);
 }
 
 /******************************************************************************/
@@ -239,5 +240,5 @@ void SysTick_Handler(void)
 {
 	SENS_SYS_TICK++;
 }
-#endif /* USE_CASE_RUN_IDX */
+#endif /* USE_CASE_RUN_IDX_2 */
 /*** EOF ***/

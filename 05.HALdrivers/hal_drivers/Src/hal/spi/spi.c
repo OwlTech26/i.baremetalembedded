@@ -12,8 +12,8 @@
 /******************************************************************************/
 #include "spi.h"
 
+#include "rcc.h"
 #include "cast.h"
-#include "clock_reset.h"
 #include "cortex_m4.h"
 #include "hal_reg.h"
 #include "spi_register.h"
@@ -163,7 +163,7 @@ t_error_code SPI_peri_enable(const t_spi_port spi_sel, const uint8_t port_en, co
 		// Enable the peripheral clock for SPI peripheral
 		const uint8_t peri_sel[e_spi_max] = {e_peri_spi1, e_peri_spi2, e_peri_spi3, e_peri_spi4};
 		const t_clock_peri peri_bus = ((spi_sel == e_spi_1) || (spi_sel == e_spi_4)) ? e_peri_apb2 : e_peri_apb1;
-		CLOCK_RESET_enable_peri(peri_bus, peri_sel[spi_sel], port_en, lpwrm_en);
+		RCC_enable_peri(peri_bus, peri_sel[spi_sel], port_en, lpwrm_en);
 
 		ret_stat = e_ec_no_error;
 	}
@@ -182,7 +182,7 @@ t_error_code SPI_peri_reset(const t_spi_port spi_sel)
 		// Enable the peripheral clock for SPI peripheral
 		const uint8_t peri_sel[e_spi_max] = {e_peri_spi1, e_peri_spi2, e_peri_spi3, e_peri_spi4};
 		const t_clock_peri peri_bus = ((spi_sel == e_spi_1) || (spi_sel == e_spi_4)) ? e_peri_apb2 : e_peri_apb1;
-		CLOCK_RESET_reset_peri(peri_bus, peri_sel[spi_sel]);
+		RCC_reset_peri(peri_bus, peri_sel[spi_sel]);
 
 		ret_stat = e_ec_no_error;
 	}

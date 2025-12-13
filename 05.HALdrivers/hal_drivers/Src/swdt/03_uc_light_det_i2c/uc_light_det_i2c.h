@@ -1,14 +1,14 @@
 /**
  * Copyright (c) 2025 OwlTech
  *
- * \file uc_us_sensor.h
+ * \file uc_light_det_i2c.h
  * \brief
  * \author OwlTech
- * \date Nov 21, 2025
+ * \date Dec 8, 2025
  */
 
-#ifndef UC_US_SENSOR_H_
-#define UC_US_SENSOR_H_
+#ifndef UC_LIGHT_DET_I2C_H_
+#define UC_LIGHT_DET_I2C_H_
 
 /******************************************************************************/
 /*--------------------------Includes------------------------------------------*/
@@ -50,7 +50,7 @@
  *  \return 
  *  	\retval 
  */
-void UC_US_SENSOR_run(void);
+void UC_LIGHT_DET_I2C_run(void);
 
-#endif /* UC_US_SENSOR_H_ */
+#endif /* UC_LIGHT_DET_I2C_H_ */
 /*** EOF ***/

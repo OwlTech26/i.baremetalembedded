@@ -12,7 +12,7 @@
 /******************************************************************************/
 #include "gpio.h"
 
-#include "clock_reset.h"
+#include "rcc.h"
 #include "exti.h"
 #include "hal_reg.h"
 #include "syscfg_register.h"
@@ -85,7 +85,7 @@ t_error_code GPIO_port_enable(const t_gpio_port gpio_port_sel, const uint8_t por
 		// Enable the peripheral clock for GPIOA peripheral
 		const t_ahb1_peri_sel peri_sel[e_gpio_max] = {e_peri_gpioa, e_peri_gpiob, e_peri_gpioc, e_peri_gpiod,
 				e_peri_gpioe, e_peri_gpiof, e_peri_gpiog, e_peri_gpioh};
-		CLOCK_RESET_enable_peri(e_peri_ahb1, peri_sel[gpio_port_sel], port_en, lpwrm_en);
+		RCC_enable_peri(e_peri_ahb1, peri_sel[gpio_port_sel], port_en, lpwrm_en);
 
 		ret_stat = e_ec_no_error;
 	}
@@ -104,7 +104,7 @@ t_error_code GPIO_port_reset(const t_gpio_port gpio_port_sel)
 		// Enable the peripheral clock for GPIOA peripheral
 		const t_ahb1_peri_sel peri_sel[e_gpio_max] = {e_peri_gpioa, e_peri_gpiob, e_peri_gpioc, e_peri_gpiod,
 				e_peri_gpioe, e_peri_gpiof, e_peri_gpiog, e_peri_gpioh};
-		CLOCK_RESET_reset_peri(e_peri_ahb1, peri_sel[gpio_port_sel]);
+		RCC_reset_peri(e_peri_ahb1, peri_sel[gpio_port_sel]);
 
 		ret_stat = e_ec_no_error;
 	}
@@ -197,7 +197,7 @@ t_error_code GPIO_interrupt_config(const t_gpio_port port_sel, const t_gpio_pin 
 		const uint8_t exti_reg_sel = (exti_idx / SYSCFG_EXTICR_NUM);
 
 		// Enable SYSCFG clock
-		CLOCK_RESET_enable_peri(e_peri_apb2, e_peri_syscfg, ENABLE, FALSE);
+		RCC_enable_peri(e_peri_apb2, e_peri_syscfg, ENABLE, FALSE);
 		t_SYSCFG_RegDef * const p_syscfg_reg = CAST_TO(t_SYSCFG_RegDef * const, SYSCFG_BASE);
 		const uint8_t exti_data = gpio_exti_pin_mux(port_sel);
 		switch (exti_reg_sel) {

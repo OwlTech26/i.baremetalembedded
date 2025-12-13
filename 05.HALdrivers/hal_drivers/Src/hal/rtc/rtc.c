@@ -12,7 +12,7 @@
 /******************************************************************************/
 #include "rtc.h"
 
-#include "clock_reset.h"
+#include "rcc.h"
 #include "hal_reg.h"
 #include "cast.h"
 #include "rtc_register.h"
@@ -196,7 +196,7 @@ static t_error_code rtc_init_time(const t_rtc_time * const p_rtc_time)
 void RTC_enable(const t_bool rtc_en, const uint8_t lpwrm_en)
 {
 	// Enable/disable clock access to PWR
-	CLOCK_RESET_enable_peri(e_peri_apb1, e_peri_pwr, rtc_en, lpwrm_en);
+	RCC_enable_peri(e_peri_apb1, e_peri_pwr, rtc_en, lpwrm_en);
 
 	uint32_t pwr_cr_reg = PWR_CR_GET();
 	if (rtc_en != FALSE) {
@@ -208,18 +208,18 @@ void RTC_enable(const t_bool rtc_en, const uint8_t lpwrm_en)
 	}
 
 	// Enable/disable Low Speed Internal Oscillator
-	CLOCK_RESET_lsion_enable(rtc_en);
+	RCC_lsion_enable(rtc_en);
 
 	if (rtc_en != FALSE) {
 		// Reset backup domain
-		CLOCK_RESET_backup_domain_reset();
+		RCC_backup_domain_reset();
 
 		// Set RTC clock source to LSI
-		CLOCK_RESET_rtc_clock_sel(e_clk_rtc_lsi);
+		RCC_rtc_clock_sel(e_clk_rtc_lsi);
 	}
 
 	// Enable/disable RTC
-	CLOCK_RESET_rtc_enable(rtc_en);
+	RCC_rtc_enable(rtc_en);
 }
 
 t_error_code RTC_init(const t_rtc_date * const p_rtc_date, const t_rtc_time * const p_rtc_time)

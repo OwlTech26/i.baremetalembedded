@@ -24,6 +24,9 @@
 /******************************************************************************/
 /*--------------------------Data Structures-----------------------------------*/
 /******************************************************************************/
+/** \brief Data Template */
+	/**< Data 1. */
+	//!< Data 2.
 typedef struct {
 	volatile uint32_t SPIx_CR1;
 	volatile uint32_t SPIx_CR2;
@@ -36,10 +39,6 @@ typedef struct {
 	volatile uint32_t SPIx_I2SPR;
 } t_SPI_RegDef;
 
-
-/** \brief Data Template */
-	/**< Data 1. */
-	//!< Data 2.
 typedef enum {
 	e_spi_1 		= 0u,
 	e_spi_2 		= 1u,

@@ -10,7 +10,7 @@
 /******************************************************************************/
 /*--------------------------Includes------------------------------------------*/
 /******************************************************************************/
-#include "clock_reset.h"
+#include "rcc.h"
 
 #include "common_def.h"
 #include "hal_reg.h"
@@ -28,8 +28,12 @@
 #define APB1_PERI_RESET(bf)		do{ (RCC->APB1RSTR |= (1u << bf)); (RCC->APB1RSTR &= ~(1u << bf)); }while(0)
 #define APB2_PERI_RESET(bf)		do{ (RCC->APB2RSTR |= (1u << bf)); (RCC->APB2RSTR &= ~(1u << bf)); }while(0)
 
-#define CLOCK_RTCPRE_MAX (31u)
+#define CLOCK_RTCPRE_MAX 		(32u)
 
+#define CLOCK_FREQ_HSI			(16000000u)	//!< 16MHz clock.
+#define CLOCK_FREQ_HSE			(8000000u)	//!< 8MHz clock.
+#define CLOCK_HPRE_SEL_MAX		((e_clk_hpre_max - e_clk_hpre_2) + 1u)
+#define CLOCK_PPRE_SEL_MAX		((e_clk_ppre_max - e_clk_ppre_2) + 1u)
 
 /******************************************************************************/
 /*--------------------------Data Structures-----------------------------------*/
@@ -90,7 +94,11 @@ typedef struct {
  *  \return 
  *  	\retval 
  */
-static uint32_t clock_reset_calc_peri_address(const uint32_t base_addr, const t_clock_peri clock_sel);
+static uint32_t rcc_calc_peri_address(const uint32_t base_addr, const t_clock_peri clock_sel);
+
+static uint32_t rcc_get_ahb_prescaler(const t_clock_cfg_hpre hpre_sel);
+
+static uint32_t rcc_get_apb_prescaler(const t_clock_cfg_ppre ppre_sel);
 
 /******************************************************************************/
 /*----------------------Inline Function Implementations-----------------------*/
@@ -100,7 +108,7 @@ static uint32_t clock_reset_calc_peri_address(const uint32_t base_addr, const t_
 /******************************************************************************/
 /*----------------------Local Function Implementations------------------------*/
 /******************************************************************************/
-static uint32_t clock_reset_calc_peri_address(const uint32_t base_addr, const t_clock_peri clock_sel)
+static uint32_t rcc_calc_peri_address(const uint32_t base_addr, const t_clock_peri clock_sel)
 {
 	const uint8_t peri_ofs[e_peri_max] = {RCC_AHB1ENR_OFS, RCC_AHB2ENR_OFS, RCC_AHB3ENR_OFS, RCC_APB1ENR_OFS, RCC_APB2ENR_OFS};
 	const uint32_t ret_val = base_addr + peri_ofs[clock_sel];
@@ -108,10 +116,26 @@ static uint32_t clock_reset_calc_peri_address(const uint32_t base_addr, const t_
 	return ret_val;
 }
 
+static uint32_t rcc_get_ahb_prescaler(const t_clock_cfg_hpre hpre_sel)
+{
+	const uint16_t ahb_pres[CLOCK_HPRE_SEL_MAX] = {1u, 2u, 4u, 8u, 16u, 64u, 128u, 256u, 512u};
+	const uint32_t ahb_pres_idx = (hpre_sel == e_clk_hpre_0) ? e_clk_hpre_0 : (hpre_sel - e_clk_hpre_2 + 1u);
+
+	return (uint32_t)ahb_pres[ahb_pres_idx];
+}
+
+static uint32_t rcc_get_apb_prescaler(const t_clock_cfg_ppre ppre_sel)
+{
+	const uint16_t apb_pres[CLOCK_PPRE_SEL_MAX] = {1u, 2u, 4u, 8u, 16u};
+	const uint32_t apb_pres_idx = (ppre_sel == e_clk_ppre_0) ? e_clk_ppre_0 : (ppre_sel - e_clk_ppre_2 + 1u);
+
+	return (uint32_t)apb_pres[apb_pres_idx];
+}
+
 /******************************************************************************/
 /*-----------------------API Function Implementations-------------------------*/
 /******************************************************************************/
-void CLOCK_RESET_enable_source(const t_clock_source clk_src, const t_bool enable)
+void RCC_enable_source(const t_clock_source clk_src, const t_bool enable)
 {
 	const uint32_t clk_control[e_clk_src_max] = {RCC_CR_HSI_ON_MASK, RCC_CR_HSE_ON_MASK | RCC_CR_HSE_BYP_MASK, RCC_CR_CSS_ON_MASK,
 			RCC_CR_PLL_ON_MASK, RCC_CR_PLLI2S_ON_MASK, RCC_CR_PLLSAI_ON_MASK};
@@ -123,7 +147,7 @@ void CLOCK_RESET_enable_source(const t_clock_source clk_src, const t_bool enable
 	}
 }
 
-t_bool CLOCK_RESET_get_source_stat(const t_clock_source clk_src)
+t_bool RCC_get_source_stat(const t_clock_source clk_src)
 {
 	const uint32_t rcc_cr_reg = RCC_CR_GET();
 	uint32_t clk_stat = 0u;
@@ -156,19 +180,19 @@ t_bool CLOCK_RESET_get_source_stat(const t_clock_source clk_src)
 }
 
 
-t_error_code CLOCK_RESET_set_config(const t_clock_cfgr * const p_clk_cfg)
+t_error_code RCC_set_config(const t_clock_cfgr * const p_clk_cfg)
 {
 	t_error_code ret_stat = e_ec_invalid_param;
 
-	if ((p_clk_cfg->clk_sw <= e_clk_sys_pll_r) &&
-		(p_clk_cfg->clk_hpre <= e_clk_hpre_512) &&
-		(p_clk_cfg->clk_ppre1 <= e_clk_ppre_16) &&
-		(p_clk_cfg->clk_ppre2 <= e_clk_ppre_16) &&
-		(p_clk_cfg->clk_rtcpre <= CLOCK_RTCPRE_MAX) &&
-		(p_clk_cfg->clk_mco1 <= e_clk_sys_pll) &&
-		(p_clk_cfg->clk_mco1_pre <= e_clk_mco_pre_5) &&
-		(p_clk_cfg->clk_mco2 <= e_clk_sys_pll) &&
-		(p_clk_cfg->clk_mco2_pre <= e_clk_mco_pre_5)) {
+	if ((p_clk_cfg->clk_sw < e_clk_sys_max) &&
+		(p_clk_cfg->clk_hpre < e_clk_hpre_max) &&
+		(p_clk_cfg->clk_ppre1 < e_clk_ppre_max) &&
+		(p_clk_cfg->clk_ppre2 < e_clk_ppre_max) &&
+		(p_clk_cfg->clk_rtcpre < CLOCK_RTCPRE_MAX) &&
+		(p_clk_cfg->clk_mco1 < e_clk_mco_max) &&
+		(p_clk_cfg->clk_mco1_pre < e_clk_mco_pre_max) &&
+		(p_clk_cfg->clk_mco2 < e_clk_mco_max) &&
+		(p_clk_cfg->clk_mco2_pre < e_clk_mco_pre_max)) {
 
 		uint32_t rcc_cfg_reg = 0u;
 		HAL_BIT_SET(rcc_cfg_reg, RCC_CFGR_SW_POS, RCC_CFGR_SW_WIDTH, p_clk_cfg->clk_sw);
@@ -188,11 +212,12 @@ t_error_code CLOCK_RESET_set_config(const t_clock_cfgr * const p_clk_cfg)
 	return ret_stat;
 }
 
-void CLOCK_RESET_get_config(t_clock_cfgr * const p_clk_cfg)
+void RCC_get_config(t_clock_cfgr * const p_clk_cfg)
 {
 	const uint32_t rcc_cfg_reg = RCC_CFGR_GET();
 
 	p_clk_cfg->clk_sw = HAL_BIT_GET(rcc_cfg_reg, RCC_CFGR_SW_POS, RCC_CFGR_SW_WIDTH);
+	p_clk_cfg->clk_sws = HAL_BIT_GET(rcc_cfg_reg, RCC_CFGR_SWS_POS, RCC_CFGR_SWS_WIDTH);
 	p_clk_cfg->clk_hpre = HAL_BIT_GET(rcc_cfg_reg, RCC_CFGR_HPRE_POS, RCC_CFGR_HPRE_WIDTH);
 	p_clk_cfg->clk_ppre1 = HAL_BIT_GET(rcc_cfg_reg, RCC_CFGR_PPRE1_POS, RCC_CFGR_PPRE1_WIDTH);
 	p_clk_cfg->clk_ppre2 = HAL_BIT_GET(rcc_cfg_reg, RCC_CFGR_PPRE2_POS, RCC_CFGR_PPRE2_WIDTH);
@@ -204,10 +229,10 @@ void CLOCK_RESET_get_config(t_clock_cfgr * const p_clk_cfg)
 }
 
 
-void CLOCK_RESET_enable_peri(const t_clock_peri clock_sel,  const uint8_t peri_bf_pos, const uint8_t clock_en, const uint8_t lpwrm_en)
+void RCC_enable_peri(const t_clock_peri clock_sel,  const uint8_t peri_bf_pos, const uint8_t clock_en, const uint8_t lpwrm_en)
 {
 	const uint32_t peri_base = (lpwrm_en == DISABLE) ? RCC_BASE : RCC_BASE + (RCC_AHB1LPENR_OFS - RCC_AHB1ENR_OFS);
-	const uint32_t peri_bridge_addr = clock_reset_calc_peri_address(peri_base, clock_sel);
+	const uint32_t peri_bridge_addr = rcc_calc_peri_address(peri_base, clock_sel);
 
 	const uint32_t peri_en_mask = RCC_AHB1ENR_MASK(peri_bf_pos);
 	uint32_t peri_reg_val = HAL_REG_READ(peri_bridge_addr);
@@ -219,7 +244,7 @@ void CLOCK_RESET_enable_peri(const t_clock_peri clock_sel,  const uint8_t peri_b
 	HAL_REG_WRITE(peri_bridge_addr, peri_reg_val);
 }
 
-void CLOCK_RESET_reset_peri(const t_clock_peri clock_sel, const uint8_t peri_bf_pos)
+void RCC_reset_peri(const t_clock_peri clock_sel, const uint8_t peri_bf_pos)
 {
 	switch (clock_sel) {
 		case e_peri_ahb1:
@@ -243,7 +268,7 @@ void CLOCK_RESET_reset_peri(const t_clock_peri clock_sel, const uint8_t peri_bf_
 	}
 }
 
-void CLOCK_RESET_lsion_enable(const t_bool lsion_en)
+void RCC_lsion_enable(const t_bool lsion_en)
 {
 	uint32_t rcc_csr_reg = RCC_CSR_GET();
 	if (lsion_en != FALSE) {
@@ -256,7 +281,7 @@ void CLOCK_RESET_lsion_enable(const t_bool lsion_en)
 	while ((RCC_CSR_GET() & RCC_CSR_LSIRDY_MASK) == 0u);
 }
 
-void CLOCK_RESET_backup_domain_reset(void)
+void RCC_backup_domain_reset(void)
 {
 	uint32_t rcc_bdcr_reg = RCC_BDCR_GET();
 	rcc_bdcr_reg |= RCC_BDCR_BDRST_MASK; // Force reset
@@ -265,7 +290,7 @@ void CLOCK_RESET_backup_domain_reset(void)
 	RCC_BDCR_SET(rcc_bdcr_reg);
 }
 
-void CLOCK_RESET_rtc_clock_sel(t_clock_rtc_src rtc_clk_sel)
+void RCC_rtc_clock_sel(t_clock_rtc_src rtc_clk_sel)
 {
 	uint32_t rcc_bdcr_reg = RCC_BDCR_GET();
 	rcc_bdcr_reg &= RCC_BDCR_RTCSEL_NMASK;
@@ -273,7 +298,7 @@ void CLOCK_RESET_rtc_clock_sel(t_clock_rtc_src rtc_clk_sel)
 	RCC_BDCR_SET(rcc_bdcr_reg);
 }
 
-void CLOCK_RESET_rtc_enable(const t_bool rtc_en)
+void RCC_rtc_enable(const t_bool rtc_en)
 {
 	uint32_t rcc_bdcr_reg = RCC_BDCR_GET();
 	if (rtc_en != FALSE) {
@@ -282,6 +307,32 @@ void CLOCK_RESET_rtc_enable(const t_bool rtc_en)
 		rcc_bdcr_reg &= RCC_BDCR_RTCEN_NMASK;
 	}
 	RCC_BDCR_SET(rcc_bdcr_reg);
+}
+
+uint32_t RCC_get_peri_clock_freq(const t_clock_peri peri_clk_sel)
+{
+	t_clock_cfgr clk_cfg = {0};
+	RCC_get_config(&clk_cfg);
+
+	const uint32_t sys_clk[e_clk_sys_max] = {CLOCK_FREQ_HSI, CLOCK_FREQ_HSE, 0u, 0u}; // ToDo: PLL and PLL_R are not implemented
+	uint32_t ret_freq = sys_clk[clk_cfg.clk_sws] / rcc_get_ahb_prescaler(clk_cfg.clk_hpre);
+
+	switch (peri_clk_sel) {
+		case e_peri_ahb1:
+		case e_peri_ahb2:
+			break;
+		case e_peri_apb1:
+			ret_freq /= rcc_get_apb_prescaler(clk_cfg.clk_ppre1);
+			break;
+		case e_peri_apb2:
+			ret_freq /= rcc_get_apb_prescaler(clk_cfg.clk_ppre2);
+			break;
+		default:
+			ret_freq = 0u;
+			break;
+	}
+
+	return ret_freq;
 }
 
 /*** EOF ***/

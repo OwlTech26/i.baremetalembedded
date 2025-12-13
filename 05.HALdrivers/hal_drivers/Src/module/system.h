@@ -34,7 +34,7 @@
 #define SYS_PIN_ONBOARD_BTN (e_gpio_pin_13)
 /**@}*/
 
-/** \name Communication ports. */
+/** \name SPI port. */
 /**@{*/
 #define SYS_SPI_PERI 		(e_spi_1)
 #define SYS_SPI_ALT_FUNC 	(5u)
@@ -43,11 +43,16 @@
 #define SYS_SPI_MISO		(e_gpio_pin_6) // D12 PA6
 #define SYS_SPI_MOSI		(e_gpio_pin_7) // D11 PA7
 #define SYS_SPI_CS			(e_gpio_pin_9) // D8  PA9
+/**@}*/
 
-
-
-
-
+/** \name I2C port. */
+/**@{*/
+#define SYS_I2C_PERI		(e_i2c_1)
+#define SYS_I2C_ALT_FUNC 	(4u)
+#define SYS_I2C_GPIO_PORT 	(e_gpio_b)
+#define SYS_I2C_SCL			(e_gpio_pin_8) // D15 PB8
+#define SYS_I2C_SDA			(e_gpio_pin_9) // D14 PB9
+#define SYS_I2C_OAR_ADDR 	(123u)
 /**@}*/
 
 

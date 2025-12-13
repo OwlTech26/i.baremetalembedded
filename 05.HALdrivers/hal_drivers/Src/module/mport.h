@@ -54,9 +54,15 @@
  */
 t_error_code MPORT_spi_init(void);
 
+t_error_code MPORT_i2c_init(void);
+
 void MPORT_spi_byte_write_reg(const uint8_t * const p_write_data, const uint8_t data_len);
 
 void MPORT_spi_byte_read_reg(const uint8_t read_addr, uint8_t * const p_read_data, const uint8_t data_len);
+
+void MPORT_i2c_byte_read_reg(const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_read_data);
+
+void MPORT_i2c_byte_read_reg_burst(const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_read_data, const uint8_t data_len);
 
 #endif /* SEIF_H_ */
 /*** EOF ***/

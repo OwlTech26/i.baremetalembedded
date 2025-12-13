@@ -2,7 +2,7 @@
  * Copyright (c) 2025 OwlTech
  *
  * \file seif_bmp280.c
- * \brief
+ * \brief BMP280 temperature and pressure sensor.
  * \author OwlTech
  * \date Dec 1, 2025
  */

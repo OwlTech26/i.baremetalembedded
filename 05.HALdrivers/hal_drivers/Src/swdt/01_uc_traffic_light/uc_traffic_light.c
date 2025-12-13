@@ -13,7 +13,7 @@
 #include "uc_traffic_light.h"
 
 #include "system.h"
-#include "clock_reset.h"
+#include "rcc.h"
 #include "gpio.h"
 #include "cortex_m4.h"
 #include "fw_debug.h"
@@ -23,7 +23,7 @@
 /******************************************************************************/
 /*--------------------------Defines-------------------------------------------*/
 /******************************************************************************/
-#define HSE_CLOCK_RESET_TIMEOUT	100u
+#define HSE_RCC_TIMEOUT	100u
 
 /** \name Traffic Light Parameters. */
 /**@{*/
@@ -34,7 +34,7 @@
 /** \name Traffic Light Timing Parameters. Granularity: 10 ms. */
 /**@{*/
 #define TL_TIME_STAT_BLINK	(30u)
-#define TL_TIME_IDLE_BLINK	(30u)
+#define TL_TIME_IDLE_BLINK	(50u)
 #define TL_TIME_STOP		(200u)
 #define TL_TIME_PREP_GO		(100u)
 #define TL_TIME_GO			(300u)
@@ -43,7 +43,7 @@
 
 /** \name SysTick timer settings. */
 /**@{*/
-#define TL_SYSTICK_10MS_RELOAD_VAL	(160000u-1) //!< Calculated based on 16 MHz clock
+#define TL_SYSTICK_10MS_RELOAD_VAL	(160000u-1u) //!< Calculated based on 16 MHz clock
 /**@}*/
 
 /******************************************************************************/
@@ -107,11 +107,11 @@ static void uc_traffic_light_init(t_GPIO_RegDef * const p_led_port, t_GPIO_RegDe
 	// 1. Enable the HSE clock using HSEON bit (RCC_CR)
 	// 2. Enable the HSE bypass bit (bypass the oscillator with an ext clock)
 	const t_clock_source clk_src = e_clk_hse;
-	CLOCK_RESET_enable_source(clk_src, TRUE);
+	RCC_enable_source(clk_src, TRUE);
 
 	// 3. Wait until HSE clock enabled
-	uint32_t timeout = HSE_CLOCK_RESET_TIMEOUT;
-	while ((CLOCK_RESET_get_source_stat(clk_src) == FALSE) && (timeout > 0u)) {
+	uint32_t timeout = HSE_RCC_TIMEOUT;
+	while ((RCC_get_source_stat(clk_src) == FALSE) && (timeout > 0u)) {
 		timeout--;
 	}
 
@@ -120,12 +120,12 @@ static void uc_traffic_light_init(t_GPIO_RegDef * const p_led_port, t_GPIO_RegDe
 		DEBUG_PRINT("  - HSE clock enable SUCCESS\n");
 
 		const t_clock_cfgr clk_cfg = {
-			.clk_sw = e_clk_sys_hse,
-			.clk_mco1 = e_clk_mco_hse,
-			.clk_mco1_pre = e_clk_mco_pre_4
+			.clk_sw = e_clk_sys_hsi,
+			.clk_hpre = e_clk_hpre_0
 		};
-		init_stat = CLOCK_RESET_set_config(&clk_cfg);
+		init_stat = RCC_set_config(&clk_cfg);
 		DEBUG_PRINT((init_stat == e_ec_no_error) ? "  - HSE Clock switch SUCCESS\n" : "  - HSE Clock switch FAIL\n");
+		DEBUG_PRINT("  - AHB1 peripheral clock frequency: %lu MHz\n", RCC_get_peri_clock_freq(e_peri_ahb1) / RCC_CLOCK_FREQ_TO_MHZ);
 	} else {
 		DEBUG_PRINT("  - HSE clock enable FAIL.\n");
 	}
