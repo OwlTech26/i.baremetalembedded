@@ -38,6 +38,7 @@
 /**@{*/
 #define MPORT_I2C_PIN_NUM_ALT_MODE		(2u)
 #define MPORT_I2C_SCL_SM_MAX_RISE_TIME  (17u)
+#define MPORT_I2C_SEND_CMD_DATA_LEN		(0u)
 /**@{*/
 
 
@@ -213,21 +214,35 @@ void MPORT_spi_byte_read_reg(const uint8_t read_addr, uint8_t * const p_read_dat
 	SPI_peri_ctrl(p_spi, FALSE);
 }
 
-void MPORT_i2c_byte_read_reg(const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_read_data)
+void MPORT_i2c_byte_read_reg(const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_read_data, const uint8_t data_len)
 {
 	t_I2C_RegDef * const p_i2c = I2C_get_peri_base(SYS_I2C_PERI);
 
 	I2C_peri_ctrl(p_i2c, TRUE);
-	I2C_read_byte(p_i2c, slave_addr, mem_addr, p_read_data);
+	if (data_len > 1u) {
+		I2C_read_byte_burst(p_i2c, slave_addr, mem_addr, p_read_data, data_len);
+	} else {
+		I2C_read_byte(p_i2c, slave_addr, mem_addr, p_read_data);
+	}
 	I2C_peri_ctrl(p_i2c, FALSE);
 }
 
-void MPORT_i2c_byte_read_reg_burst(const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_read_data, const uint8_t data_len)
+void MPORT_i2c_send_cmd(const uint8_t slave_addr, const uint8_t cmd)
+{
+	t_I2C_RegDef * const p_i2c = I2C_get_peri_base(SYS_I2C_PERI);
+	uint8_t tx_data = 0u;
+
+	I2C_peri_ctrl(p_i2c, TRUE);
+	I2C_write_byte_burst(p_i2c, slave_addr, cmd, &tx_data, MPORT_I2C_SEND_CMD_DATA_LEN);
+	I2C_peri_ctrl(p_i2c, FALSE);
+}
+
+void MPORT_i2c_byte_write_reg(const uint8_t slave_addr, const uint8_t mem_addr, const uint8_t * const p_write_data, const uint8_t data_len)
 {
 	t_I2C_RegDef * const p_i2c = I2C_get_peri_base(SYS_I2C_PERI);
 
 	I2C_peri_ctrl(p_i2c, TRUE);
-	I2C_read_byte_burst(p_i2c, slave_addr, mem_addr, p_read_data, data_len);
+	I2C_write_byte_burst(p_i2c, slave_addr, mem_addr, p_write_data, data_len);
 	I2C_peri_ctrl(p_i2c, FALSE);
 }
 

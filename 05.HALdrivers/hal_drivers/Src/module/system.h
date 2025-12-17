@@ -28,10 +28,12 @@
 #define SYS_PIN_GRN_LED 	(e_gpio_pin_7)
 /**@}*/
 
-/** \name Input buttons. */
+/** \name Inputs. */
 /**@{*/
-#define SYS_GPIO_BTN_PORT 	(e_gpio_c)
-#define SYS_PIN_ONBOARD_BTN (e_gpio_pin_13)
+#define SYS_GPIO_BTN_PORT 		(e_gpio_c)
+#define SYS_PIN_ONBOARD_BTN 	(e_gpio_pin_13)
+#define SYS_LUX_INT_GPIO_PORT 	(e_gpio_b)
+#define SYS_LUX_INT_IN			(e_gpio_pin_6) // D10 PB6
 /**@}*/
 
 /** \name SPI port. */
@@ -53,6 +55,22 @@
 #define SYS_I2C_SCL			(e_gpio_pin_8) // D15 PB8
 #define SYS_I2C_SDA			(e_gpio_pin_9) // D14 PB9
 #define SYS_I2C_OAR_ADDR 	(123u)
+/**@}*/
+
+/** \name Sensor Modules. */
+/**@{*/
+#define SYS_TSL2561_CHIP_ID 			(0x50u) //!< TSL2561T/FN/CL, rev.: 0
+#define SYS_TSL2561_CFG_INTEG_INIT 		(e_tsl2561_integ_402_ms) //!<
+#define SYS_TSL2561_CFG_GAIN_INIT 		(FALSE) //!<
+#define SYS_TSL2561_CFG_IT_THRES_LOW 	(80u) //!<
+#define SYS_TSL2561_CFG_IT_THRES_HIGH 	(500u) //!<
+#define SYS_TSL2561_CFG_IT_TYPE			(e_tsl2561_intr_it_level) //!<
+#define SYS_TSL2561_CFG_IT_PERS 		(8u) //!<
+
+#define SYS_VEML6040_CFG_INTEG_INIT 	(e_veml6040_integ_320_ms) //!<
+#define SYS_VEML60401_CFG_AF_INIT 		(FALSE) //!< Auto Mode.
+
+#define SYS_DS1307_CHIP_ID 				(0x00u) //!<
 /**@}*/
 
 

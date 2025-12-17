@@ -75,35 +75,26 @@ static inline void i2c_clear_addr_flag(const t_I2C_RegDef * const p_i2c)
 {
 	uint32_t stat_reg = p_i2c->I2Cx_SR1;
 	stat_reg = p_i2c->I2Cx_SR2;
-	INTENTINALLY_UNUSED(stat_reg);
+	INTENTIONALLY_UNUSED(stat_reg);
 }
 
 static inline void i2c_master_send_byte(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const uint8_t mem_addr)
 {
 	// Wait until bus not busy
 	while(p_i2c->I2Cx_SR2 == I2C_SR2_BUSY_MASK);
-
 	// Generate start condition
 	p_i2c->I2Cx_CR1 |= I2C_CR1_START_MASK;
-
 	// Wait until start generation is completed
 	// Note: Until SB is cleared SCL will be streched (pulled Low)
 	while((p_i2c->I2Cx_SR1 & I2C_SR1_SB_MASK) == 0u);
-
 	// Transmit slave address + write
 	p_i2c->I2Cx_DR = (slave_addr << I2C_SCL_ADDR_7BIT_SHIFT) | I2C_SCL_ADDR_7BIT_WMASK;
-
 	// Wait until address complete
 	while((p_i2c->I2Cx_SR1 & I2C_SR1_ADDR_MASK) == 0u);
-
 	// Clear ADDR flag
 	i2c_clear_addr_flag(p_i2c);
-
 	// Send memory address
 	p_i2c->I2Cx_DR = mem_addr;
-
-	// Wait untill transmitter empty
-	while((p_i2c->I2Cx_SR1 & I2C_SR1_TXE_MASK) == 0u);
 }
 
 /******************************************************************************/
@@ -251,27 +242,22 @@ void I2C_read_byte(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const u
 {
 	i2c_master_send_byte(p_i2c, slave_addr, mem_addr);
 
+	// Wait until transmitter empty
+	while((p_i2c->I2Cx_SR1 & I2C_SR1_TXE_MASK) == 0u);
 	// Generate re-start condition
 	p_i2c->I2Cx_CR1 |= I2C_CR1_START_MASK;
-
 	// Wait until re-start generation is completed
 	while((p_i2c->I2Cx_SR1 & I2C_SR1_SB_MASK) == 0u);
-
 	// Transmit slave address + read
 	p_i2c->I2Cx_DR = (slave_addr << I2C_SCL_ADDR_7BIT_SHIFT) | I2C_SCL_ADDR_7BIT_RMASK;
-
 	// Wait until address complete
 	while((p_i2c->I2Cx_SR1 & I2C_SR1_ADDR_MASK) == 0u);
-
 	// Disable acknowledge
 	p_i2c->I2Cx_CR1 &= I2C_CR1_ACK_NMASK;
-
 	// Clear ADDR flag
 	i2c_clear_addr_flag(p_i2c);
-
 	// Generate stop condition
 	p_i2c->I2Cx_CR1 |= I2C_CR1_STOP_MASK;
-
 	// Wait until data received
 	while((p_i2c->I2Cx_SR1 & I2C_SR1_RXNE_MASK) == 0u);
 
@@ -283,6 +269,8 @@ void I2C_read_byte_burst(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, c
 {
 	i2c_master_send_byte(p_i2c, slave_addr, mem_addr);
 
+	// Wait until transmitter empty
+	while((p_i2c->I2Cx_SR1 & I2C_SR1_TXE_MASK) == 0u);
 	// Generate re-start condition
 	p_i2c->I2Cx_CR1 |= I2C_CR1_START_MASK;
 	// Wait until re-start generation is completed
@@ -312,6 +300,23 @@ void I2C_read_byte_burst(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, c
 		p_rx_buf++;
 		rx_buf_len--;
 	}
+}
+
+void I2C_write_byte_burst(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const uint8_t mem_addr, const uint8_t * const p_data, const uint32_t data_len)
+{
+	i2c_master_send_byte(p_i2c, slave_addr, mem_addr);
+
+	for (uint32_t i = 0u; i < data_len; ++i) {
+		// Wait until transmitter empty
+		while((p_i2c->I2Cx_SR1 & I2C_SR1_TXE_MASK) == 0u);
+		// Transmit data
+		p_i2c->I2Cx_DR = p_data[i];
+	}
+
+	// Wait until transfer is completed
+	while((p_i2c->I2Cx_SR1 & I2C_SR1_BTF_MASK) == 0u);
+	// Generate stop condition
+	p_i2c->I2Cx_CR1 |= I2C_CR1_STOP_MASK;
 }
 
 /*** EOF ***/

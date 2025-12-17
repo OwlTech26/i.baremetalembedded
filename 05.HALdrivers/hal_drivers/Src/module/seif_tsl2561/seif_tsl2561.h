@@ -1,14 +1,14 @@
 /**
  * Copyright (c) 2025 OwlTech
  *
- * \file mport.h
- * \brief Module Port.
+ * \file seif_tsl2561.h
+ * \brief
  * \author OwlTech
- * \date Nov 27, 2025
+ * \date Dec 15, 2025
  */
 
-#ifndef SEIF_H_
-#define SEIF_H_
+#ifndef SEIF_TSL2561_H_
+#define SEIF_TSL2561_H_
 
 /******************************************************************************/
 /*--------------------------Includes------------------------------------------*/
@@ -19,6 +19,7 @@
 /******************************************************************************/
 /*--------------------------Defines-------------------------------------------*/
 /******************************************************************************/
+#define SEIF_TSL2561_INT_PERSIST_MAX	(16u)
 
 
 /******************************************************************************/
@@ -27,7 +28,21 @@
 /** \brief Data Template */
 	/**< Data 1. */
 	//!< Data 2.
+typedef enum {
+	e_tsl2561_integ_13p7_ms		= 0u,
+	e_tsl2561_integ_101_ms		= 1u,
+	e_tsl2561_integ_402_ms		= 2u,
+	e_tsl2561_integ_man_ctrl	= 3u,
+	e_tsl2561_integ_max			= 4u
+} t_tsl2561_integ;
 
+typedef enum {
+	e_tsl2561_intr_disable		= 0u, //!< Interrupt output disabled.
+	e_tsl2561_intr_it_level		= 1u, //!< Level Interrupt.
+	e_tsl2561_intr_smb_alert	= 2u, //!< SMBAlert compliant.
+	e_tsl2561_intr_test_mode	= 3u, //!< Test Mode: Sets interrupt and functions as mode 10.
+	e_tsl2561_intr_max			= 4u
+} t_tsl2561_intr;
 
 /******************************************************************************/
 /*--------------------------Inline Function Prototypes------------------------*/
@@ -52,21 +67,27 @@
  *  \return 
  *  	\retval 
  */
-t_error_code MPORT_spi_init(void);
+uint8_t SEIF_TSL2561_get_id(void);
 
-t_error_code MPORT_i2c_init(void);
+t_error_code SEIF_TSL2561_set_config(const t_tsl2561_integ integ, t_bool gain_16x_en);
 
-void MPORT_spi_byte_write_reg(const uint8_t * const p_write_data, const uint8_t data_len);
+uint8_t SEIF_TSL2561_get_config(void);
 
-void MPORT_spi_byte_read_reg(const uint8_t read_addr, uint8_t * const p_read_data, const uint8_t data_len);
+void SEIF_TSL2561_integ_man_ctrl(const uint8_t timing_reg, const t_bool start_en);
 
-void MPORT_i2c_byte_read_reg(const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_read_data, const uint8_t data_len);
+uint8_t SEIF_TSL2561_get_pwr(void);
 
-void MPORT_i2c_send_cmd(const uint8_t slave_addr, const uint8_t cmd);
+void SEIF_TSL2561_set_pwr(const t_bool pwr_on);
 
-void MPORT_i2c_send_cmd(const uint8_t slave_addr, const uint8_t cmd);
+uint16_t SEIF_TSL2561_read_visible_ir(void);
 
-void MPORT_i2c_byte_write_reg(const uint8_t slave_addr, const uint8_t mem_addr, const uint8_t * const p_write_data, const uint8_t data_len);
+uint16_t SEIF_TSL2561_read_ir_only(void);
 
-#endif /* SEIF_H_ */
+void SEIF_TSL2561_set_it_threshold(const uint16_t thres_low, const uint16_t thres_high);
+
+t_error_code SEIF_TSL2561_set_it_ctrl(const t_tsl2561_intr intr, const uint8_t intr_pers_sel);
+
+void SEIF_TSL2561_clear_it(void);
+
+#endif /* SEIF_TSL2561_H_ */
 /*** EOF ***/

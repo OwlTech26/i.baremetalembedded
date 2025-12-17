@@ -27,8 +27,9 @@
 
 /** \name Traffic Light Parameters. */
 /**@{*/
-#define TL_LED_NUM			(4u)
-#define TL_IRQ_PRIO_CTRL 	(15u)
+#define TL_LED_NUM				(4u)
+#define TL_IRQ_PRIO_CTRL 		(15u)
+#define TL_IT_EDGE_TRG_CTRL		(e_gpio_it_trg_sel_ft)
 /**@{*/
 
 /** \name Traffic Light Timing Parameters. Granularity: 10 ms. */
@@ -155,14 +156,14 @@ static void uc_traffic_light_init(t_GPIO_RegDef * const p_led_port, t_GPIO_RegDe
 	// 7. Configure GPIO for BUTTON driver
 	const t_gpio_handle gpio_btn_cfg = {
 		.p_gpio_reg = p_btn_port,
-		.mode_sel = e_gpio_mode_it_ft,
+		.mode_sel = e_gpio_mode_input,
 		.open_drain_en = FALSE,
 		.speed = e_gpio_speed_fast,
 		.pupd = e_gpio_pupd_no,
 		.alt_func_sel = 0u
 	};
 	const t_error_code ctrl_cfg_stat = GPIO_port_config(&gpio_btn_cfg, SYS_PIN_ONBOARD_BTN);
-	const t_error_code ctrl_it_cfg_stat = GPIO_interrupt_config(SYS_GPIO_BTN_PORT, SYS_PIN_ONBOARD_BTN, TL_IRQ_PRIO_CTRL);
+	const t_error_code ctrl_it_cfg_stat = GPIO_interrupt_config(SYS_GPIO_BTN_PORT, SYS_PIN_ONBOARD_BTN, TL_IRQ_PRIO_CTRL, TL_IT_EDGE_TRG_CTRL);
 	DEBUG_PRINT(((ctrl_cfg_stat == e_ec_no_error) && (ctrl_it_cfg_stat == e_ec_no_error)) ? "  - GPIO IT BUTTON Configure SUCCESS\n" :
 		"  - GPIO IT BUTTON Configure FAIL\n");
 

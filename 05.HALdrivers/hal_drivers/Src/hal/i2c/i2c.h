@@ -105,5 +105,7 @@ void I2C_read_byte(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const u
 
 void I2C_read_byte_burst(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_data, const uint32_t data_len);
 
+void I2C_write_byte_burst(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const uint8_t mem_addr, const uint8_t * const p_data, const uint32_t data_len);
+
 #endif /* I2C_H_ */
 /*** EOF ***/

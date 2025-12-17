@@ -1,19 +1,15 @@
 /**
  * Copyright (c) 2025 OwlTech
  *
- * \file mport.h
- * \brief Module Port.
+ * \file seif_ds1307.c
+ * \brief
  * \author OwlTech
- * \date Nov 27, 2025
+ * \date Dec 15, 2025
  */
-
-#ifndef SEIF_H_
-#define SEIF_H_
 
 /******************************************************************************/
 /*--------------------------Includes------------------------------------------*/
 /******************************************************************************/
-#include "common_def.h"
 
 
 /******************************************************************************/
@@ -28,9 +24,17 @@
 	/**< Data 1. */
 	//!< Data 2.
 
-
 /******************************************************************************/
 /*--------------------------Inline Function Prototypes------------------------*/
+/******************************************************************************/
+/** \brief 
+ *  \param 
+ *  \return 
+ *  	\retval 
+ */
+
+/******************************************************************************/
+/*--------------------------Local Function Prototypes-------------------------*/
 /******************************************************************************/
 /** \brief 
  *  \param 
@@ -43,30 +47,14 @@
 /******************************************************************************/
 /** \brief */
 
+/******************************************************************************/
+/*----------------------Local Function Implementations------------------------*/
+/******************************************************************************/
+/** \brief */
 
 /******************************************************************************/
-/*---------------------------API Function Prototypes--------------------------*/
+/*-----------------------API Function Implementations-------------------------*/
 /******************************************************************************/
-/** \brief 
- *  \param 
- *  \return 
- *  	\retval 
- */
-t_error_code MPORT_spi_init(void);
+/** \brief */
 
-t_error_code MPORT_i2c_init(void);
-
-void MPORT_spi_byte_write_reg(const uint8_t * const p_write_data, const uint8_t data_len);
-
-void MPORT_spi_byte_read_reg(const uint8_t read_addr, uint8_t * const p_read_data, const uint8_t data_len);
-
-void MPORT_i2c_byte_read_reg(const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_read_data, const uint8_t data_len);
-
-void MPORT_i2c_send_cmd(const uint8_t slave_addr, const uint8_t cmd);
-
-void MPORT_i2c_send_cmd(const uint8_t slave_addr, const uint8_t cmd);
-
-void MPORT_i2c_byte_write_reg(const uint8_t slave_addr, const uint8_t mem_addr, const uint8_t * const p_write_data, const uint8_t data_len);
-
-#endif /* SEIF_H_ */
 /*** EOF ***/

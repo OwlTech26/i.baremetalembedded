@@ -20,24 +20,29 @@
 /******************************************************************************/
 /*--------------------------Defines-------------------------------------------*/
 /******************************************************************************/
-#define ENABLE			1u
-#define DISABLE			0u
+#define ENABLE								1u
+#define DISABLE								0u
 
-#define BYTES             		(1u)              	//!< size of a byte
-#define HALF_WORDS        		(2u * BYTES)    	//!< size of an (32-bit) word
-#define WORDS             		(4u * BYTES)    	//!< size of an (32-bit) word
-#define DWORDS            		(8u * BYTES)    	//!< size of an (64-bit) double word
-#define KILO_BYTES        		(1024u * BYTES) 	//!< size of 1024 bytes (1 kByte)
-#define NUM_OF_NIBBLE_BITS 		(4u * BYTES)    	//!< Number of bits inside an (4-bit) half Byte
-#define NUM_OF_BYTE_BITS  		(8u * BYTES)    	//!< Number of bits inside an (8-bit) Byte
-#define NUM_OF_HALF_WORD_BITS  	(8u * HALF_WORDS)	//!< Number of bits inside a (16-bit) half word
-#define NUM_OF_WORD_BITS  		(8u * WORDS)    	//!< Number of bits inside an (32-bit) word
-#define NUM_OF_DWORD_BITS 		(8u * DWORDS)   	//!< Number of bits inside an (64-bit) double-word
-#define NBYTES_PER_WORD   		(4u)              	//!< Number of bytes in an (32-bit) word
+#define BYTES             					(1u)              	//!< size of a byte
+#define HALF_WORDS        					(2u * BYTES)    	//!< size of an (32-bit) word
+#define WORDS             					(4u * BYTES)    	//!< size of an (32-bit) word
+#define DWORDS            					(8u * BYTES)    	//!< size of an (64-bit) double word
+#define KILO_BYTES        					(1024u * BYTES) 	//!< size of 1024 bytes (1 kByte)
+#define NUM_OF_NIBBLE_BITS 					(4u * BYTES)    	//!< Number of bits inside an (4-bit) half Byte
+#define NUM_OF_BYTE_BITS  					(8u * BYTES)    	//!< Number of bits inside an (8-bit) Byte
+#define NUM_OF_HALF_WORD_BITS  				(8u * HALF_WORDS)	//!< Number of bits inside a (16-bit) half word
+#define NUM_OF_WORD_BITS  					(8u * WORDS)    	//!< Number of bits inside an (32-bit) word
+#define NUM_OF_DWORD_BITS 					(8u * DWORDS)   	//!< Number of bits inside an (64-bit) double-word
+#define NBYTES_PER_WORD   					(4u)              	//!< Number of bytes in an (32-bit) word
+#define WORD_UPPER_MSB_MASK					(0xFFFF0000u)
+#define WORD_LOWER_LSB_MASK					(0x0000FFFFu)
+#define GET_WORD_UPPER_MSB_MASK(word)		(((uint32_t)word) >> NUM_OF_HALF_WORD_BITS)
+#define GET_WORD_LOWER_LSB_MASK(word)		(((uint32_t)word) & NUM_OF_HALF_WORD_BITS)
+
 
 #define NUM_OF_ARRAY(x)   (sizeof(x) / sizeof(*x))   //!< Number of an array elements
 
-#define INTENTINALLY_UNUSED(x)	((void)x)
+#define INTENTIONALLY_UNUSED(x)	((void)x)
 
 #define ERR_STAT_NO_ERROR		(0u)
 

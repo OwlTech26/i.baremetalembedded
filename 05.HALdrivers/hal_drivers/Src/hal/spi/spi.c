@@ -84,7 +84,7 @@ static inline void spi_clear_ovr_flag(t_SPI_RegDef * const p_spi)
 {
 	uint8_t spi_reg = p_spi->SPIx_DR;
 	spi_reg = p_spi->SPIx_SR;
-	INTENTINALLY_UNUSED(spi_reg);
+	INTENTIONALLY_UNUSED(spi_reg);
 }
 
 
