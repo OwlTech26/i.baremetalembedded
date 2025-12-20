@@ -68,6 +68,31 @@ typedef struct {
 	uint8_t scl_trise; 			//!< SCL rise time value.
 } t_i2c_handle;
 
+typedef enum {
+	e_i2c_it_st_ready	= 0u,
+	e_i2c_it_st_tx_busy	= 1u,
+	e_i2c_it_st_rx_busy	= 2u
+} t_i2c_it_stat;
+
+typedef struct {
+	t_I2C_RegDef *  p_i2c_reg;
+	uint8_t * 		p_tx_buffer;
+	uint8_t * 		p_rx_buffer;
+	uint8_t 		slave_addr;
+	uint32_t 		tx_len;
+	uint32_t 		rx_len;
+	t_bool			start_rep;
+	t_i2c_it_stat	i2c_it_stat;
+} t_i2c_it_handle;
+
+typedef enum {
+	e_i2c_event_rx_done		= 0u,
+	e_i2c_event_tx_done		= 1u,
+	e_i2c_event_stop		= 2u,
+	e_i2c_event_ovr_error	= 3u,
+	e_i2c_event_max			= 4u
+} t_i2c_event;
+
 /******************************************************************************/
 /*--------------------------Inline Function Prototypes------------------------*/
 /******************************************************************************/
@@ -106,6 +131,19 @@ void I2C_read_byte(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const u
 void I2C_read_byte_burst(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const uint8_t mem_addr, uint8_t * const p_data, const uint32_t data_len);
 
 void I2C_write_byte_burst(t_I2C_RegDef * const p_i2c, const uint8_t slave_addr, const uint8_t mem_addr, const uint8_t * const p_data, const uint32_t data_len);
+
+
+
+t_i2c_it_stat I2C_read_byte_it(t_i2c_it_handle * const p_i2c_handle, const uint8_t slave_addr, uint8_t * const p_data, const uint32_t data_len, const t_bool start_rep);
+
+t_i2c_it_stat I2C_write_byte_it(t_i2c_it_handle * const p_i2c_handle, const uint8_t slave_addr, const uint8_t * const p_data, const uint32_t data_len, const t_bool start_rep);
+
+void I2C_api_event_cb(const t_i2c_it_handle * const p_i2c_handle, const t_i2c_event i2c_event);
+
+/** \brief Interrupt handling for both master and slave mode of a device
+ *  \param p_i2c_handle[in,out] I2C handler parameters
+ */
+void I2C_ev_irq_handling(t_i2c_it_handle * const p_i2c_handle);
 
 #endif /* I2C_H_ */
 /*** EOF ***/

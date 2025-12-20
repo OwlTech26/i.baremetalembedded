@@ -21,7 +21,7 @@
 #define VEML6040_ADDR							(0x10u)
 
 #define VEML6040_CONF							(0x00u)
-	#define VEML6040_CONF_LEN					(1u)
+	#define VEML6040_CONF_LEN					(2u)
 		//!< Chip shutdown setting.
 		#define VEML6040_CONF_SD_WIDTH			(1u)
 		#define VEML6040_CONF_SD_POS			(0u)

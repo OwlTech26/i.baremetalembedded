@@ -207,8 +207,8 @@ static void uc_light_det_i2c_sensor_init(void)
 	const uint16_t veml6040_id = SEIF_VEML6040_get_id();
 	if (veml6040_id == VEML6040_CHIP_ID_WORD) {
 		INTENTIONALLY_UNUSED(SEIF_VEML6040_set_config(SYS_VEML6040_CFG_INTEG_INIT, SYS_VEML60401_CFG_AF_INIT, TRUE));
-		const uint8_t cfg_data_act = SEIF_VEML6040_get_config();
-		const uint8_t cfg_data_exp = (3u << 4u) | ((uint8_t)SYS_VEML60401_CFG_AF_INIT << 1u);
+		const uint16_t cfg_data_act = SEIF_VEML6040_get_config();
+		const uint16_t cfg_data_exp = ((uint16_t)3u << 4u) | ((uint16_t)SYS_VEML60401_CFG_AF_INIT << 1u);
 		DEBUG_PRINT((cfg_data_act == cfg_data_exp) ? "  - VEML6040 initialization SUCCESS.\n" : "  - VEML6040 initialization FAIL.\n");
 	} else {
 		DEBUG_PRINT("  - VEML6040 initialization: ChipID FAIL.\n");
@@ -237,10 +237,10 @@ static void uc_light_det_i2c_enable_lux_intr(void)
 
 static void uc_light_det_i2c_provide_data(void)
 {
+	t_veml6040_data veml_data = {0};
+
 	const uint16_t tsl_visible_ir = SEIF_TSL2561_read_visible_ir();
 	const uint16_t tsl_ir_only = SEIF_TSL2561_read_ir_only();
-
-	t_veml6040_data veml_data = {0};
 	SEIF_VEML6040_read_light_data(&veml_data);
 
 	DEBUG_PRINT("----------------------------------------------------------------\n");

@@ -83,7 +83,7 @@ uint16_t SEIF_VEML6040_get_id(void);
 
 t_error_code SEIF_VEML6040_set_config(const t_veml6040_integ integ, const t_bool fmode_en, const t_bool pwr_on);
 
-uint8_t SEIF_VEML6040_get_config(void);
+uint16_t SEIF_VEML6040_get_config(void);
 
 void SEIF_VEML6040_set_pwr(const uint8_t conf_reg, const t_bool pwr_on);
 

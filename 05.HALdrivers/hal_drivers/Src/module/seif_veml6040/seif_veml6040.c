@@ -102,10 +102,11 @@ t_error_code SEIF_VEML6040_set_config(const t_veml6040_integ integ, const t_bool
 	if (integ < e_veml6040_integ_max) {
 		const uint8_t integ_vals[e_veml6040_integ_max] = {SEIF_VEML6040_INTEG_40_MS, SEIF_VEML6040_INTEG_80_MS,
 			SEIF_VEML6040_INTEG_160_MS, SEIF_VEML6040_INTEG_320_MS, SEIF_VEML6040_INTEG_640_MS, SEIF_VEML6040_INTEG_1280_MS};
-		const uint8_t cfg_val = (integ_vals[integ] << VEML6040_CONF_IT_POS) |
+		const uint16_t cfg_val = (integ_vals[integ] << VEML6040_CONF_IT_POS) |
 			(b_to_uint32(fmode_en) << VEML6040_CONF_AF_POS) | ((pwr_on == FALSE) ? VEML6040_CONF_SD_MASK : 0u);
+		const uint8_t * const p_cfg = CAST_TO(const uint8_t * const, &cfg_val);
 
-		MPORT_i2c_byte_write_reg(VEML6040_ADDR, VEML6040_CONF, &cfg_val, VEML6040_CONF_LEN);
+		MPORT_i2c_byte_write_reg(VEML6040_ADDR, VEML6040_CONF, p_cfg, VEML6040_CONF_LEN);
 
 		ret_stat = e_ec_no_error;
 	}
@@ -113,11 +114,13 @@ t_error_code SEIF_VEML6040_set_config(const t_veml6040_integ integ, const t_bool
 	return ret_stat;
 }
 
-uint8_t SEIF_VEML6040_get_config(void)
+uint16_t SEIF_VEML6040_get_config(void)
 {
-	uint8_t ret_cfg = 0u;
+	uint16_t ret_cfg = 0u;
 
-	MPORT_i2c_byte_read_reg(VEML6040_ADDR, VEML6040_CONF, &ret_cfg, VEML6040_CONF_LEN);
+	uint8_t * const p_cfg = CAST_TO(uint8_t * const, &ret_cfg);
+
+	MPORT_i2c_byte_read_reg(VEML6040_ADDR, VEML6040_CONF, p_cfg, VEML6040_CONF_LEN);
 
 	return ret_cfg;
 }
