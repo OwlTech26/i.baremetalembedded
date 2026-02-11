@@ -144,13 +144,13 @@ t_error_code MPORT_i2c_init(void)
 	uint32_t err_stat = ERR_STAT_NO_ERROR;
 
 	// 1. Enable GPIO port for I2C
-	const t_error_code spi_gpio_en_stat = GPIO_port_enable(SYS_I2C_GPIO_PORT, ENABLE, DISABLE);
-	err_stat |= (spi_gpio_en_stat == e_ec_no_error) ? ERR_STAT_NO_ERROR : MPORT_ERR_STAT_GPIO_EN;
+	const t_error_code i2c_gpio_en_stat = GPIO_port_enable(SYS_I2C_GPIO_PORT, ENABLE, DISABLE);
+	err_stat |= (i2c_gpio_en_stat == e_ec_no_error) ? ERR_STAT_NO_ERROR : MPORT_ERR_STAT_GPIO_EN;
 
 	// 2. Configure GPIO pins for I2C
-	t_GPIO_RegDef * const p_gpio_spi = GPIO_get_port_base(SYS_I2C_GPIO_PORT);
-	t_gpio_handle gpio_spi_cfg = {
-		.p_gpio_reg = p_gpio_spi,
+	t_GPIO_RegDef * const p_gpio_i2c = GPIO_get_port_base(SYS_I2C_GPIO_PORT);
+	t_gpio_handle gpio_i2c_cfg = {
+		.p_gpio_reg = p_gpio_i2c,
 		.mode_sel = e_gpio_mode_alt_func,
 		.open_drain_en = TRUE,
 		.speed = e_gpio_speed_medium,
@@ -158,15 +158,15 @@ t_error_code MPORT_i2c_init(void)
 		.alt_func_sel = SYS_I2C_ALT_FUNC
 	};
 	uint8_t succ_cnt = 0u;
-	const uint8_t spi_pins[MPORT_I2C_PIN_NUM_ALT_MODE] = {SYS_I2C_SCL, SYS_I2C_SDA};
+	const uint8_t i2c_pins[MPORT_I2C_PIN_NUM_ALT_MODE] = {SYS_I2C_SCL, SYS_I2C_SDA};
 	for (uint8_t pin_sel= 0u; pin_sel < MPORT_I2C_PIN_NUM_ALT_MODE; pin_sel++) {
-		succ_cnt += (e_ec_no_error == GPIO_port_config(&gpio_spi_cfg, spi_pins[pin_sel])) ? 1u : 0u;
+		succ_cnt += (e_ec_no_error == GPIO_port_config(&gpio_i2c_cfg, i2c_pins[pin_sel])) ? 1u : 0u;
 	}
 	err_stat |= (succ_cnt == MPORT_I2C_PIN_NUM_ALT_MODE) ? ERR_STAT_NO_ERROR : MPORT_ERR_STAT_GPIO_CFG;
 
 	// 3. Enable I2C port
-	const t_error_code i2C_en_stat = I2C_peri_enable(SYS_I2C_PERI, ENABLE, DISABLE);
-	err_stat |= (i2C_en_stat == e_ec_no_error) ? ERR_STAT_NO_ERROR : MPORT_ERR_STAT_I2C_EN;
+	const t_error_code i2c_en_stat = I2C_peri_enable(SYS_I2C_PERI, ENABLE, DISABLE);
+	err_stat |= (i2c_en_stat == e_ec_no_error) ? ERR_STAT_NO_ERROR : MPORT_ERR_STAT_I2C_EN;
 
 	// 4. Configure I2C port
 	t_I2C_RegDef * const p_i2c_reg = I2C_get_peri_base(SYS_I2C_PERI);

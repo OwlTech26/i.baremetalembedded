@@ -57,6 +57,15 @@
 #define SYS_I2C_OAR_ADDR 	(123u)
 /**@}*/
 
+/** \name USART port. */
+/**@{*/
+#define SYS_USART_PERI		(e_usart_2)
+#define SYS_USART_ALT_FUNC 	(7u)
+#define SYS_USART_GPIO_PORT (e_gpio_a)
+#define SYS_USART_RX		(e_gpio_pin_3) // D0 PA3
+#define SYS_USART_TX		(e_gpio_pin_2) // D1 PA2
+/**@}*/
+
 /** \name Sensor Modules. */
 /**@{*/
 #define SYS_TSL2561_CHIP_ID 			(0x50u) //!< TSL2561T/FN/CL, rev.: 0
