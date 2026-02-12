@@ -12,11 +12,14 @@
 /******************************************************************************/
 #include "uc_uart_cli.h"
 
+#include <string.h>
 #include "rcc.h"
 #include "gpio.h"
 #include "usart.h"
 #include "system.h"
 #include "fw_debug.h"
+
+#include "cast.h"
 
 /******************************************************************************/
 /*--------------------------Defines-------------------------------------------*/
@@ -77,17 +80,16 @@ t_error_code uc_uart_cli_usart_init(void)
 	t_error_code ret_stat = e_ec_invalid_param;
 	uint32_t err_stat = ERR_STAT_NO_ERROR;
 
-	// 1. Enable GPIO port for USART
+	// 1. Enable GPIO port for UART
 	const t_error_code usart_gpio_en_stat = GPIO_port_enable(SYS_USART_GPIO_PORT, ENABLE, DISABLE);
 	err_stat |= (usart_gpio_en_stat == e_ec_no_error) ? ERR_STAT_NO_ERROR : UC_UART_CLI_ERR_STAT_GPIO_EN;
 
 	// 2. Configure GPIO pins for UART
-	t_GPIO_RegDef * const p_gpio_usart = GPIO_get_port_base(SYS_USART_GPIO_PORT);
 	t_gpio_handle gpio_usart_cfg = {
-		.p_gpio_reg = p_gpio_usart,
+		.p_gpio_reg = GPIO_get_port_base(SYS_USART_GPIO_PORT),
 		.mode_sel = e_gpio_mode_alt_func,
 		.open_drain_en = FALSE,
-		.speed = e_gpio_speed_medium,
+		.speed = e_gpio_speed_fast,
 		.pupd = e_gpio_pupd_no,
 		.alt_func_sel = SYS_USART_ALT_FUNC
 	};
@@ -102,21 +104,22 @@ t_error_code uc_uart_cli_usart_init(void)
 	const t_error_code usart_en_stat = USART_peri_enable(SYS_USART_PERI, ENABLE, DISABLE);
 	err_stat |= (usart_en_stat == e_ec_no_error) ? ERR_STAT_NO_ERROR : UC_UART_CLI_ERR_STAT_USART_EN;
 
-
 	// 4. Configure USART port
-	t_USART_RegDef * const p_usart_reg = USART_get_peri_base(SYS_USART_PERI);
 	t_usart_handle usart_handle = {
-		.p_usart_reg = p_usart_reg,
-		.mode = e_usart_mode_rx_only,
+		.p_usart_reg = USART_get_peri_base(SYS_USART_PERI),
+		.mode = e_usart_mode_txrx,
 		.baud = e_usart_baud_9600,
 		.stop_bits = e_usart_stop_bit_1,
 		.word_9bit_en = FALSE,
 		.parity_ctrl = e_usart_parity_none,
-		.hwflow_ctrl = e_usart_hwflow_none
+		.hwflow_ctrl = e_usart_hwflow_none,
+		.over8_en = FALSE
 	};
 	const t_error_code usart_cfg_stat = USART_config(&usart_handle);
 	err_stat |= (usart_cfg_stat == e_ec_no_error) ? ERR_STAT_NO_ERROR : UC_UART_CLI_ERR_STAT_USART_CFG;
 
+	// 5. Enable USART
+	USART_peri_ctrl(usart_handle.p_usart_reg, TRUE);
 
 	if (ERR_STAT_NO_ERROR == err_stat) {
 		ret_stat = e_ec_no_error;
@@ -152,9 +155,9 @@ static void uc_uart_cli_init(void)
 		DEBUG_PRINT("  - HSE Clock enable SUCCESS\n");
 
 		const t_clock_cfgr clk_cfg = {
-			.clk_sw = e_clk_sys_hse,
-			.clk_hpre = e_clk_hpre_2,
-			.clk_ppre1 = e_clk_ppre_2
+			.clk_sw = e_clk_sys_hsi,
+			.clk_hpre = e_clk_hpre_0,
+			.clk_ppre1 = e_clk_ppre_0
 		};
 		init_stat = RCC_set_config(&clk_cfg);
 		DEBUG_PRINT((init_stat == e_ec_no_error) ? "  - HSE Clock switch SUCCESS\n" : "  - HSE Clock switch FAIL\n");
@@ -214,6 +217,10 @@ static void uc_uart_cli_init(void)
 void UC_UART_CLI_run(void)
 {
 	uc_uart_cli_init();
+
+	t_USART_RegDef * const p_uart = USART_get_peri_base(SYS_USART_PERI);
+
+
 #if 0
 	// Initialize system sensors
 	uc_light_det_i2c_sensor_init();
@@ -233,7 +240,23 @@ void UC_UART_CLI_run(void)
 		}
 	}
 #endif
-	while (1);
+	uint8_t rx_buff[1024] = {0u};
+	char tx_buff[1024] = {0u};
+	const char * const p_msg = "Hello from UART!";
+
+	uint32_t idx = 1u;
+	while (1) {
+		const uint32_t rx_data_len = USART_read_byte(p_uart, rx_buff, 1024u);
+		if (rx_data_len > 0u) {
+			rx_buff[rx_data_len] = '\0';
+			DEBUG_PRINT(" >> UART_RX: %lu, %s\n", rx_data_len, CAST_TO(char *, rx_buff));
+		}
+
+		snprintf(tx_buff, 1024, "%lu. %s - %s\n\r", idx++, p_msg, rx_buff);
+		USART_write_byte(p_uart, CAST_TO(const uint8_t * const, tx_buff), strlen(tx_buff));
+
+		for (uint32_t i=0u; i<3000000u; ++i);
+	}
 }
 
 /*** EOF ***/

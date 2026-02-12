@@ -64,10 +64,8 @@ typedef enum {
 	e_usart_baud_115k2 	= 6u,
 	e_usart_baud_230k4 	= 7u,
 	e_usart_baud_460k8 	= 8u,
-	e_usart_baud_921k6 	= 9u,
-	e_usart_baud_2m	 	= 10u,
-	e_usart_baud_3m 	= 11u,
-	e_usart_baud_max	= 12u
+	e_usart_baud_921k6 	= 8u,
+	e_usart_baud_max	= 10u
 } t_usart_baud;
 
 typedef enum {
@@ -103,6 +101,9 @@ typedef struct {
 									//!< \value{TRUE,9-bit word length}
 	t_usart_parity parity_ctrl;
 	t_usart_hwflow hwflow_ctrl;
+	t_bool over8_en;				//!< Oversampling by 8 mode enabled.
+									//!< \value{FALSE,oversampling by 16}
+									//!< \value{TRUE,oversampling by 8}
 } t_usart_handle;
 
 /******************************************************************************/
@@ -136,7 +137,11 @@ t_USART_RegDef * const USART_get_peri_base(const t_usart_port usart_sel);
 
 t_error_code USART_config(const t_usart_handle * const p_usart_handle);
 
-void USART_peri_ctrl(t_USART_RegDef * const p_i2c, const t_bool usart_en);
+void USART_peri_ctrl(t_USART_RegDef * const p_usart, const t_bool usart_en);
+
+uint32_t USART_read_byte(t_USART_RegDef * const p_usart, uint8_t * const p_buf, const uint32_t buf_len);
+
+void USART_write_byte(t_USART_RegDef * const p_usart, const uint8_t * const p_data, const uint32_t data_len);
 
 #endif /* USART_H_ */
 /*** EOF ***/
