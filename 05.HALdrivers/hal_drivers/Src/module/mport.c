@@ -2,7 +2,7 @@
  * Copyright (c) 2025 OwlTech
  *
  * \file mport.c
- * \brief
+ * \brief Module Port.
  * \author OwlTech
  * \date Nov 27, 2025
  */

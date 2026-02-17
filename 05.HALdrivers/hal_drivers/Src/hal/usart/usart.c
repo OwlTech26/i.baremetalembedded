@@ -189,11 +189,11 @@ uint32_t USART_read_byte(t_USART_RegDef * const p_usart, uint8_t * const p_buf, 
 {
 	uint32_t ret_length = 0u;
 
-	while ((ret_length < buf_len) && (p_buf[ret_length-1u] != '\r')) {
+	do {
 		// Wait until receive data register is not empty
 		while((p_usart->USARTx_SR & USART_SR_RXNE_MASK) == 0u);
 		p_buf[ret_length++] = p_usart->USARTx_DR;
-	}
+	} while ((ret_length < buf_len) && (p_buf[ret_length-1u] != '\r'));
 
 	return ret_length;
 }
